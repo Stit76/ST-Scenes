@@ -1,0 +1,8 @@
+{
+  "creativemodetab.stscenes_tab": "ST-Scenes",
+  "entity.stscenes.st_entity": "ST-NPC",
+  "item.stscenes.npc_spawner": "NPC spawner",
+  "item.stscenes.scene_customizer": "Scene Customizer",
+  "npc_spawner.npc_customizer_screen.title": "NPC Customizer",
+  "scene_customizer.scene_customizer_screen.title": "Scene Customizer"
+}

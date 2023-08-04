@@ -3,6 +3,7 @@ package com.stit76.stscenes.client.gui.npcCustomizer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.stit76.stscenes.STScenes;
+import com.stit76.stscenes.client.gui.STScreen;
 import com.stit76.stscenes.client.gui.components.AlwaysShowNameCheckBox;
 import com.stit76.stscenes.client.gui.components.CustomButton;
 import com.stit76.stscenes.client.gui.components.FollowCheckBox;
@@ -20,7 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-public class NpcCustomizerScreen extends Screen {
+public class NpcCustomizerScreen extends STScreen {
     public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/npc_spawner_gui.png");
     int xMouse;
     int yMouse;

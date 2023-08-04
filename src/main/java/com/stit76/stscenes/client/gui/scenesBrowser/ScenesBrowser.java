@@ -3,26 +3,28 @@ package com.stit76.stscenes.client.gui.scenesBrowser;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.stit76.stscenes.STScenes;
+import com.stit76.stscenes.client.gui.STScreen;
 import com.stit76.stscenes.client.gui.sceneCustomizer.SceneCustomizerScreen;
 import com.stit76.stscenes.client.gui.components.SceneButton;
 import com.stit76.stscenes.common.item.SceneCustomizer;
 import com.stit76.stscenes.common.scenes.scene.Scene;
-import com.stit76.stscenes.common.scenes.Scenes;
+import com.stit76.stscenes.common.scenes.scene.Scenes;
+import com.stit76.stscenes.networking.SimpleNetworkWrapper;
+import com.stit76.stscenes.networking.packet.synchronization.AddSceneToScenesDataC2SPacket;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class ScenesBrowser extends Screen {
+import java.util.List;
+
+public class ScenesBrowser extends STScreen {
     public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/scenes_browser_gui.png");
     private final ResourceLocation buttons = new ResourceLocation("textures/gui/resource_packs.png");
 
-    private SceneCustomizer sceneCustomizer;
-    private Player player;
+    public SceneCustomizer sceneCustomizer;
+    public Player player;
+    private List<Scene> sceneList;
     short winSizeX = (int) (212 * 1.5);
     short winSizeY = (int) (166 * 1.5);
     short leftPos = 0;
@@ -30,28 +32,18 @@ public class ScenesBrowser extends Screen {
     byte line_on_page = 14;
     short page = 1;
     private int maxPage;
-    private short tick = 0;
     public ScenesBrowser(Component p_96550_, SceneCustomizer sceneCustomizer,Player player) {
         super(p_96550_);
         this.player = player;
         this.sceneCustomizer = sceneCustomizer;
-        MinecraftForge.EVENT_BUS.register(this);
-    }
-    @SubscribeEvent
-    public void onTick(TickEvent.ClientTickEvent e){
-        if(tick >= 0 & tick <= 10){
-            tick++;
-        } else if(tick >= 0){
-            init();
-            tick = -1;
-        }
     }
 
     @Override
     protected void init() {
+        sceneList = Scenes.sceneList;
         leftPos = (short) (this.width / 2 - (winSizeX / 2));
         topPos = (short) (this.height / 2 - (winSizeY / 2));
-        maxPage = (Scenes.sceneList.size() - 1) / line_on_page + 1;
+        maxPage = (sceneList.size() - 1) / line_on_page + 1;
         initTools();
         initScenes();
         super.init();
@@ -84,8 +76,8 @@ public class ScenesBrowser extends Screen {
             Scene scene = new Scene("Test");
             scene.setName("New scene");
             scene.updateDate();
-            if(Scenes.sceneList.size() > page * line_on_page){NextPage();}
-            tick = 0;
+            //if(sceneList.size() > page * line_on_page){NextPage();}
+            SimpleNetworkWrapper.sendToServer(new AddSceneToScenesDataC2SPacket(scene,Scenes.sceneList));
         }));
         addRenderableWidget(new ImageButton((int) (leftPos + (8 * 1.5)), (int) (topPos + (140 * 1.5)),32,32,32,0,32,buttons,256,256,(p_96713_) ->{
             PreviousPage();
@@ -100,14 +92,14 @@ public class ScenesBrowser extends Screen {
         int numY = 0;
         int numX = 0;
         int pn = (line_on_page * page) - line_on_page;
-        for (int i = pn; i < Scenes.sceneList.size() & i < pn + line_on_page; i++) {
+        for (int i = pn; i < sceneList.size() & i < pn + line_on_page; i++) {
             if(numY >= line_on_page / 2){
                 numX++;
                 numY = 1;
             } else {
                 numY++;
             }
-            initScene((short) i,Scenes.sceneList.get(i),leftPos + ((24 * (numX + 1)) + (150 *numX)),topPos + ((20 * (numY + 1)) + (3 *numY)),100,21);
+            initScene((short) i, sceneList.get(i),leftPos + ((24 * (numX + 1)) + (150 *numX)),topPos + ((20 * (numY + 1)) + (3 *numY)),100,21);
         }
 
     }

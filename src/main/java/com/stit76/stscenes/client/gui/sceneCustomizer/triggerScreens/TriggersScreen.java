@@ -3,6 +3,8 @@ package com.stit76.stscenes.client.gui.sceneCustomizer.triggerScreens;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.stit76.stscenes.STScenes;
+import com.stit76.stscenes.client.gui.STScreen;
+import com.stit76.stscenes.client.gui.sceneCustomizer.SceneCustomizerScreen;
 import com.stit76.stscenes.common.item.SceneCustomizer;
 import com.stit76.stscenes.common.scenes.scene.Scene;
 import com.stit76.stscenes.common.scenes.scene.trigger.TouchTrigger;
@@ -13,9 +15,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public class TriggersScreen extends Screen {
+public class TriggersScreen extends STScreen {
     public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/act_customizer_gui.png");
     private Scene scene;
+    private SceneCustomizerScreen screen;
     private SceneCustomizer sceneCustomizer;
     int winSizeX = (int) (119 * 1.5);
     int winSizeY = (int) (166 * 1.5);
@@ -25,8 +28,9 @@ public class TriggersScreen extends Screen {
     private int max_page;
 
 
-    public TriggersScreen(Component p_96550_, Scene scene,SceneCustomizer sceneCustomizer) {
+    public TriggersScreen(Component p_96550_,SceneCustomizerScreen screen, Scene scene,SceneCustomizer sceneCustomizer) {
         super(p_96550_);
+        this.screen = screen;
         this.scene = scene;
         this.sceneCustomizer = sceneCustomizer;
     }
@@ -74,7 +78,7 @@ public class TriggersScreen extends Screen {
     }
     private void initTrigger(int num, int x, int y, int sizeX, int sizeY){
         addRenderableWidget(Button.builder(Component.nullToEmpty(scene.triggers.get(num).name),(p_93751_) -> {
-            this.minecraft.setScreen(new TriggerCustomizerScreen(Component.nullToEmpty("Change trigger type"),scene,num,sceneCustomizer,this));
+            this.minecraft.setScreen(new TriggerCustomizerScreen(Component.nullToEmpty("Change trigger type"),screen,scene,num,sceneCustomizer,this));
         }).pos(x,y).size(sizeX,sizeY).build());
     }
 

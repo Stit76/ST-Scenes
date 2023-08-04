@@ -4,20 +4,15 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.stit76.stscenes.common.scenes.scene.Scene;
-import com.stit76.stscenes.common.scenes.scene.act.Act;
-import com.stit76.stscenes.common.scenes.scene.act.Acts;
-import com.stit76.stscenes.common.scenes.scene.act.acts.TellAct;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.WorldData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class    ScenesData extends SavedData {
@@ -25,12 +20,12 @@ public class    ScenesData extends SavedData {
     public static final Codec<List<Scene>> CODEC_SCENES = Scene.SCENE_CODEC.listOf().xmap(ArrayList::new,ImmutableList::copyOf);
     private List<Scene> scenes = new ArrayList<>();
 
-    public void setScenes(List<Scene> scenes) {
+    public void setScenesList(List<Scene> scenes) {
         this.scenes = scenes;
         this.setDirty();
     }
 
-    public List<Scene> getScenes() {
+    public List<Scene> getScenesList() {
         return scenes;
     }
 

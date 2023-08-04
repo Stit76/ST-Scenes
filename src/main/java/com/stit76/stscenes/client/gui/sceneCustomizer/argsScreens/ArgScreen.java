@@ -3,26 +3,31 @@ package com.stit76.stscenes.client.gui.sceneCustomizer.argsScreens;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.stit76.stscenes.STScenes;
+import com.stit76.stscenes.client.gui.STScreen;
 import com.stit76.stscenes.client.gui.components.TextEditBox;
+import com.stit76.stscenes.client.gui.sceneCustomizer.SceneCustomizerScreen;
+import com.stit76.stscenes.common.scenes.scene.Scenes;
 import com.stit76.stscenes.common.scenes.scene.act.Act;
+import com.stit76.stscenes.networking.SimpleNetworkWrapper;
+import com.stit76.stscenes.networking.packet.synchronization.SetSceneInScenesDataC2SPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public abstract class ArgScreen extends Screen {
+public abstract class ArgScreen extends STScreen {
     public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/act_customizer_gui.png");
     int winSizeX = (int) (119 * 1.5);
     int winSizeY = (int) (166 * 1.5);
     int leftPos = 0;
     int topPos = 0;
-    protected Screen back_screen;
+    protected SceneCustomizerScreen back_screen;
     protected Act act;
     private TextEditBox editBox_1;
 
 
-    protected ArgScreen(Component p_96550_,Screen back_screen,Act act) {
+    protected ArgScreen(Component p_96550_,SceneCustomizerScreen back_screen,Act act) {
         super(p_96550_);
         this.back_screen = back_screen;
         this.act = act;
@@ -65,6 +70,11 @@ public abstract class ArgScreen extends Screen {
         this.minecraft.setScreen(this.back_screen);
     }
 
+    @Override
+    public void removed() {
+        SimpleNetworkWrapper.sendToServer(new SetSceneInScenesDataC2SPacket(back_screen.num,back_screen.scene, Scenes.sceneList));
+        super.removed();
+    }
 
     @Override
     public boolean isPauseScreen() {

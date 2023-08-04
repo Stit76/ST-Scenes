@@ -1,6 +1,7 @@
 package com.stit76.stscenes.client.gui.sceneCustomizer.argsScreens;
 
 import com.stit76.stscenes.client.gui.components.TextEditBox;
+import com.stit76.stscenes.client.gui.sceneCustomizer.SceneCustomizerScreen;
 import com.stit76.stscenes.common.scenes.scene.act.Act;
 import com.stit76.stscenes.common.scenes.scene.act.acts.FollowUpAct;
 import net.minecraft.client.Minecraft;
@@ -10,7 +11,7 @@ import net.minecraft.network.chat.Component;
 public class FollowUpArgScreen extends ArgScreen{
     private TextEditBox editBox_1;
 
-    protected FollowUpArgScreen(Component p_96550_, Screen back_screen, Act act) {
+    protected FollowUpArgScreen(Component p_96550_, SceneCustomizerScreen back_screen, Act act) {
         super(p_96550_, back_screen, act);
     }
 

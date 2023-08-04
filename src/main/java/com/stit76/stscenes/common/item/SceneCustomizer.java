@@ -4,7 +4,10 @@ import com.stit76.stscenes.client.gui.sceneCustomizer.SceneCustomizerScreen;
 import com.stit76.stscenes.client.gui.sceneCustomizer.triggerScreens.TouchTriggerScreen;
 import com.stit76.stscenes.client.gui.scenesBrowser.ScenesBrowser;
 import com.stit76.stscenes.common.entity.AbstractSTNPC;
+import com.stit76.stscenes.common.scenes.scene.Scenes;
 import com.stit76.stscenes.common.scenes.scene.act.Act;
+import com.stit76.stscenes.networking.SimpleNetworkWrapper;
+import com.stit76.stscenes.networking.packet.synchronization.SetSceneInScenesDataC2SPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -21,7 +24,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class SceneCustomizer extends Item {
     private boolean objectMode = false;
-    private Screen calledScreen;
+    private SceneCustomizerScreen calledScreen;
     public Act objectAct;
     public boolean posMode = false;
     public int point = 0;
@@ -80,6 +83,7 @@ public class SceneCustomizer extends Item {
                 if(this.objectMode && this.objectAct != null && calledScreen != null){
                     this.objectAct.entityUUID = p_41400_.getUUID();
                     if(p_41399_.level.isClientSide){
+                        SimpleNetworkWrapper.sendToServer(new SetSceneInScenesDataC2SPacket(calledScreen.num,calledScreen.scene, Scenes.sceneList));
                         Minecraft.getInstance().setScreen(calledScreen);
                         this.calledScreen = null;
                         this.objectMode = false;

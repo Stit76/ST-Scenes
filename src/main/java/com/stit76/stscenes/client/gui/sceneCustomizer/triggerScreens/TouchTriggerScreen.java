@@ -3,8 +3,13 @@ package com.stit76.stscenes.client.gui.sceneCustomizer.triggerScreens;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.stit76.stscenes.STScenes;
+import com.stit76.stscenes.client.gui.STScreen;
+import com.stit76.stscenes.client.gui.sceneCustomizer.SceneCustomizerScreen;
 import com.stit76.stscenes.common.item.SceneCustomizer;
+import com.stit76.stscenes.common.scenes.scene.Scenes;
 import com.stit76.stscenes.common.scenes.scene.trigger.TouchTrigger;
+import com.stit76.stscenes.networking.SimpleNetworkWrapper;
+import com.stit76.stscenes.networking.packet.synchronization.SetSceneInScenesDataC2SPacket;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -12,9 +17,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
-public class TouchTriggerScreen extends Screen {
+public class TouchTriggerScreen extends STScreen {
     public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/act_customizer_gui.png");
     private Screen lastScreen;
+    private SceneCustomizerScreen screen;
     public TouchTrigger trigger;
     private SceneCustomizer sceneCustomizer;
     public Vec3 lastAddPos;
@@ -26,8 +32,9 @@ public class TouchTriggerScreen extends Screen {
     private EditBox playerEditBox;
 
 
-    protected TouchTriggerScreen(Component p_96550_, TouchTrigger trigger, SceneCustomizer sceneCustomizer, Screen lastScreen) {
+    protected TouchTriggerScreen(Component p_96550_,SceneCustomizerScreen screen, TouchTrigger trigger, SceneCustomizer sceneCustomizer, Screen lastScreen) {
         super(p_96550_);
+        this.screen = screen;
         this.trigger = trigger;
         this.lastScreen = lastScreen;
         this.sceneCustomizer =sceneCustomizer;
@@ -48,7 +55,7 @@ public class TouchTriggerScreen extends Screen {
         this.nameEditBox.setValue(this.trigger.name);
         addRenderableWidget(this.nameEditBox);
         playerEditBox = new EditBox(this.font,leftPos + 35,topPos + 65, 100,20,Component.nullToEmpty("player"));
-        this.playerEditBox.setValue(trigger.player != null ? trigger.player.getName().getString() : "");
+        this.playerEditBox.setValue(trigger.getPlayer_nick());
         addRenderableWidget(playerEditBox);
         addRenderableWidget(Button.builder(Component.nullToEmpty(trigger.point_1 != null ? (int) trigger.point_1.x + " " + (int) trigger.point_1.y + " " + (int) trigger.point_1.z : "Point 1"),(p_93751_) -> {
             this.sceneCustomizer.posMode = true;
@@ -79,7 +86,8 @@ public class TouchTriggerScreen extends Screen {
     @Override
     public void removed() {
         this.trigger.name = nameEditBox.getValue();
-        this.trigger.player = getMinecraft().getSingleplayerServer().getPlayerList().getPlayerByName(this.playerEditBox.getValue());
+        this.trigger.player_nick = this.playerEditBox.getValue();
+        SimpleNetworkWrapper.sendToServer(new SetSceneInScenesDataC2SPacket(screen.num,screen.scene, Scenes.sceneList));
         super.removed();
     }
 

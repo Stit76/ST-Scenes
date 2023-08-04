@@ -3,10 +3,14 @@ package com.stit76.stscenes.client.gui.sceneCustomizer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.stit76.stscenes.STScenes;
+import com.stit76.stscenes.client.gui.STScreen;
 import com.stit76.stscenes.common.scenes.scene.Scene;
+import com.stit76.stscenes.common.scenes.scene.Scenes;
 import com.stit76.stscenes.common.scenes.scene.act.Act;
 import com.stit76.stscenes.common.scenes.scene.act.acts.FollowUpAct;
 import com.stit76.stscenes.common.scenes.scene.act.acts.TellAct;
+import com.stit76.stscenes.networking.SimpleNetworkWrapper;
+import com.stit76.stscenes.networking.packet.synchronization.SetSceneInScenesDataC2SPacket;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -14,10 +18,11 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
-public class ActCustomizerScreen extends Screen {
+public class ActCustomizerScreen extends STScreen {
     public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/act_customizer_gui.png");
     Screen back_screen;
     Scene scene;
+    private int num;
     int type_p = 0;
     int line;
     int winSizeX = (int) (119 * 1.5);
@@ -25,8 +30,9 @@ public class ActCustomizerScreen extends Screen {
     int leftPos = 0;
     int topPos = 0;
 
-    protected ActCustomizerScreen(Scene scene,int line, Component name,Screen screen) {
+    protected ActCustomizerScreen(int num,Scene scene,int line, Component name,Screen screen) {
         super(name);
+        this.num = num;
         this.scene = scene;
         this.line = line;
         this.back_screen = screen;
@@ -72,6 +78,12 @@ public class ActCustomizerScreen extends Screen {
         this.scene.getActs().set(this.line,act);
         this.scene.getActs().get(this.line).entityUUID = entityUUID;
         this.minecraft.setScreen(back_screen);
+    }
+
+    @Override
+    public void removed() {
+        SimpleNetworkWrapper.sendToServer(new SetSceneInScenesDataC2SPacket(this.num,this.scene, Scenes.sceneList));
+        super.removed();
     }
 
     @Override

@@ -1,17 +1,19 @@
 package com.stit76.stscenes.client.gui.sceneCustomizer.argsScreens;
 
+import com.stit76.stscenes.client.gui.STScreen;
+import com.stit76.stscenes.client.gui.sceneCustomizer.SceneCustomizerScreen;
 import com.stit76.stscenes.common.scenes.scene.act.Act;
 import com.stit76.stscenes.common.scenes.scene.act.acts.FollowUpAct;
 import com.stit76.stscenes.common.scenes.scene.act.acts.TellAct;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-public class ArgCustomizerScreen extends Screen{
+public class ArgCustomizerScreen extends STScreen {
     private Component name;
-    private Screen back_screen;
+    private SceneCustomizerScreen back_screen;
     private Act act;
 
-    public ArgCustomizerScreen(Act act, Component name,Screen back_screen) {
+    public ArgCustomizerScreen(Act act, Component name,SceneCustomizerScreen back_screen) {
         super(name);
         this.act = act;
         this.back_screen = back_screen;

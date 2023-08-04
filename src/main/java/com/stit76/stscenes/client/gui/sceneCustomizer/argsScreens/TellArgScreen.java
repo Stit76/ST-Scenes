@@ -1,6 +1,7 @@
 package com.stit76.stscenes.client.gui.sceneCustomizer.argsScreens;
 
 import com.stit76.stscenes.client.gui.components.TextEditBox;
+import com.stit76.stscenes.client.gui.sceneCustomizer.SceneCustomizerScreen;
 import com.stit76.stscenes.common.scenes.scene.act.Act;
 import com.stit76.stscenes.common.scenes.scene.act.acts.TellAct;
 import net.minecraft.client.Minecraft;
@@ -11,7 +12,7 @@ public class TellArgScreen extends ArgScreen{
     private TextEditBox editBox_1;
     private TextEditBox editBox_2;
 
-    protected TellArgScreen(Component p_96550_, Screen back_screen, Act act) {
+    protected TellArgScreen(Component p_96550_, SceneCustomizerScreen back_screen, Act act) {
         super(p_96550_, back_screen, act);
     }
 

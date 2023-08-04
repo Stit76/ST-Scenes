@@ -1,37 +1,33 @@
 package com.stit76.stscenes.common.scenes.scene;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.stit76.stscenes.common.scenes.Scenes;
 import com.stit76.stscenes.common.scenes.scene.act.Act;
 import com.stit76.stscenes.common.scenes.scene.act.Acts;
-import com.stit76.stscenes.common.scenes.scene.act.acts.TellAct;
 import com.stit76.stscenes.common.scenes.scene.trigger.Trigger;
 import com.stit76.stscenes.common.scenes.scene.trigger.Triggers;
+import com.stit76.stscenes.networking.SimpleNetworkWrapper;
+import com.stit76.stscenes.networking.packet.synchronization.LoadScenesListToClientC2SPacket;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.xml.transform.Transformer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
 
 public class Scene {
-    Logger LOGGER = LogManager.getLogger();
+    public Logger LOGGER = LogManager.getLogger();
     public UUID UUID;
     private String name;
     private String date;
-    private List<Act> acts = new ArrayList<>();
-    private int activeAct = 0;
-    private int tick = 0;
+    public List<Act> acts = new ArrayList<>();
+    public int activeAct = 0;
+    public int tick = 0;
     private boolean active = false;
     public List<Trigger> triggers = new ArrayList<>();
     public static final Codec<Scene> SCENE_CODEC = RecordCodecBuilder.create(instance -> // Given an instance
@@ -47,7 +43,7 @@ public class Scene {
             ).apply(instance, Scene::new)
     );
     public Scene(String name){
-        this.UUID = Scenes.UUIDGenerator();
+        this.UUID = java.util.UUID.randomUUID();
         this.name = name;
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -71,49 +67,43 @@ public class Scene {
         active = false;
         activateTriggers();
     }
-    @SubscribeEvent
-    public void onTick(TickEvent.ClientTickEvent e){
-        for (int i = 0; i < triggers.size(); i++) {
-            if(triggers.get(i).isTrue()){
-                deactivateTriggers();
-                this.start();
-            }
-        }
-        if(active){
-            tick++;
-            if(activeAct != 0){
-                if(tick >= acts.get(activeAct-1).delay){
-                    if(activeAct < acts.size()){
-                        if(acts.get(activeAct).start()){
-                            activeAct++;
-                        } else {
-                            LOGGER.error("The scene called \""+this.name+"\" is interrupted by action \""+activeAct+"\"");
-                            active = false;
-                        }
-                        tick = 0;
-                    } else {
-                        stop();
-                    }
-                }
-            } else {
-                if(tick >= 0){
-                    if(activeAct < acts.size()){
-                        if(acts.get(activeAct).start()){
-                            activeAct++;
-                        } else {
-                            LOGGER.error("The scene called \""+this.name+"\" is interrupted by action \""+activeAct+"\"");
-                            active = false;
-                        }
-                        tick = 0;
-                    } else {
-                        tick = 0;
-                        activeAct = 0;
-                        active = false;
-                    }
-                }
-            }
-        }
-    }
+    //@SubscribeEvent
+    //public void onTick(TickEvent.ClientTickEvent e){
+    //    if(active){
+    //        tick++;
+    //        if(activeAct != 0){
+    //            if(tick >= acts.get(activeAct-1).delay){
+    //                if(activeAct < acts.size()){
+    //                    if(acts.get(activeAct).start()){
+    //                        activeAct++;
+    //                    } else {
+    //                        LOGGER.error("The scene called \""+this.name+"\" is interrupted by action \""+activeAct+"\"");
+    //                        active = false;
+    //                    }
+    //                    tick = 0;
+    //                } else {
+    //                    stop();
+    //                }
+    //            }
+    //        } else {
+    //            if(tick >= 0){
+    //                if(activeAct < acts.size()){
+    //                    if(acts.get(activeAct).start()){
+    //                        activeAct++;
+    //                    } else {
+    //                        LOGGER.error("The scene called \""+this.name+"\" is interrupted by action \""+activeAct+"\"");
+    //                        active = false;
+    //                    }
+    //                    tick = 0;
+    //                } else {
+    //                    tick = 0;
+    //                    activeAct = 0;
+    //                    active = false;
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
     public void updateDate(){
         String timeStamp = new SimpleDateFormat("yyyy/MM/dd_HH:mm:ss").format(Calendar.getInstance().getTime());

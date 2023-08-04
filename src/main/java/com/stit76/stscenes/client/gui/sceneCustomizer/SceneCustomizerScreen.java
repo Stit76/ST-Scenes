@@ -3,23 +3,27 @@ package com.stit76.stscenes.client.gui.sceneCustomizer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.stit76.stscenes.STScenes;
+import com.stit76.stscenes.client.gui.STScreen;
 import com.stit76.stscenes.client.gui.sceneCustomizer.argsScreens.ArgCustomizerScreen;
 import com.stit76.stscenes.client.gui.sceneCustomizer.triggerScreens.TriggersScreen;
 import com.stit76.stscenes.common.item.SceneCustomizer;
 import com.stit76.stscenes.common.scenes.scene.Scene;
+import com.stit76.stscenes.common.scenes.scene.Scenes;
 import com.stit76.stscenes.common.scenes.scene.act.Act;
 import com.stit76.stscenes.common.scenes.scene.act.acts.TellAct;
+import com.stit76.stscenes.networking.SimpleNetworkWrapper;
+import com.stit76.stscenes.networking.packet.synchronization.SetSceneActiveC2SPacket;
+import com.stit76.stscenes.networking.packet.synchronization.SetSceneInScenesDataC2SPacket;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public class SceneCustomizerScreen extends Screen {
+public class SceneCustomizerScreen extends STScreen {
     public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/scenes_customizer_gui.png");
     private final ResourceLocation buttons = new ResourceLocation("textures/gui/resource_packs.png");
-    private SceneCustomizer sceneCustomizer;
+    public SceneCustomizer sceneCustomizer;
     public Scene scene;
     private EditBox name;
     int winSizeX = (int) (212 * 1.5);
@@ -28,7 +32,7 @@ public class SceneCustomizerScreen extends Screen {
     int topPos = 0;
     private int page = 1;
     private int line_on_page = 7;
-    private short num;
+    public short num;
     private int maxPage;
 
 
@@ -42,6 +46,7 @@ public class SceneCustomizerScreen extends Screen {
 
     @Override
     protected void init() {
+        this.scene = Scenes.sceneList.get(num);
         leftPos = this.width / 2 - (winSizeX / 2);
         topPos = this.height / 2 - (winSizeY / 2);
         maxPage = (scene.getActs().size() - 1) / line_on_page + 1;
@@ -91,15 +96,15 @@ public class SceneCustomizerScreen extends Screen {
     }
     private void initToolsMenu() {
         addRenderableWidget(Button.builder(Component.nullToEmpty("Start"),(p_93751_) -> {
-            scene.start();
+            SimpleNetworkWrapper.sendToServer(new SetSceneActiveC2SPacket(true,this.num,Scenes.sceneList));
         }).pos(leftPos + (winSizeX - 67),topPos + 5).size(60,15).build());
         addRenderableWidget(Button.builder(Component.nullToEmpty("Add Action"),(p_93751_) -> {
             scene.getActs().add(new TellAct());
-            if(scene.getActs().size() > page * line_on_page){NextPage();}
-            this.minecraft.setScreen(this);
+            //if(scene.getActs().size() > page * line_on_page){NextPage();}
+            SimpleNetworkWrapper.sendToServer(new SetSceneInScenesDataC2SPacket(this.num,this.scene, Scenes.sceneList));
         }).pos((int) (leftPos + (126 * 1.5)), (int) (topPos + (21 * 1.5))).size((int) (79 * 1.5),20).build());
         addRenderableWidget(Button.builder(Component.nullToEmpty("Triggers"),(p_93751_) -> {
-            this.getMinecraft().setScreen(new TriggersScreen(Component.nullToEmpty("Triggers"),this.scene,sceneCustomizer));
+            this.getMinecraft().setScreen(new TriggersScreen(Component.nullToEmpty("Triggers"),this,this.scene,sceneCustomizer));
         }).pos((int) (leftPos + (126 * 1.5)), (int) (topPos + (50 * 1.5))).size((int) (79 * 1.5),20).build());
         addRenderableWidget(new ImageButton((int) (leftPos + (6 * 1.5)), (int) (topPos + (140 * 1.5)),32,32,32,0,32,buttons,256,256,(p_96713_) ->{
             PreviousPage();
@@ -126,10 +131,10 @@ public class SceneCustomizerScreen extends Screen {
             addRenderableWidget(new ImageButton(x - 9,y,9,9,213,0,10,background,256,256,(p_93751_) -> {
                 if(!scene.isActive()){
                     scene.getActs().remove(line);
-                    if(scene.getActs().size() <= (page * line_on_page) - line_on_page){
-                        PreviousPage();
-                    }
-                    this.minecraft.setScreen(this);
+                    //if(scene.getActs().size() <= (page * line_on_page) - line_on_page){
+                    //    PreviousPage();
+                    //}
+                    SimpleNetworkWrapper.sendToServer(new SetSceneInScenesDataC2SPacket(this.num,this.scene, Scenes.sceneList));
                 }
             }));
             addRenderableWidget(Button.builder(Component.nullToEmpty(act.object),(p_93751_) -> {
@@ -139,7 +144,7 @@ public class SceneCustomizerScreen extends Screen {
                 this.minecraft.setScreen(null);
             }).pos(x,y).size(sizeTX,sizeTY).build());
             addRenderableWidget(Button.builder(Component.nullToEmpty(act.act),(p_93751_) -> {
-                this.minecraft.setScreen(new ActCustomizerScreen(scene,line,Component.nullToEmpty("Choose an action"),this));
+                this.minecraft.setScreen(new ActCustomizerScreen(num,scene,line,Component.nullToEmpty("Choose an action"),this));
             }).pos(x + sizeTX,y).size(sizeTX,sizeTY).build());
             addRenderableWidget(Button.builder(Component.nullToEmpty(act.arg),(p_93751_) -> {
                 this.minecraft.setScreen(new ArgCustomizerScreen(act,Component.nullToEmpty("Choose an arguments"),this));
@@ -165,6 +170,7 @@ public class SceneCustomizerScreen extends Screen {
     @Override
     public void removed() {
         if(name != null){this.scene.setName(this.name.getValue());}
+        SimpleNetworkWrapper.sendToServer(new SetSceneInScenesDataC2SPacket(this.num,this.scene, Scenes.sceneList));
         super.removed();
     }
 }

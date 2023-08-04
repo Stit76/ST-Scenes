@@ -2,22 +2,18 @@ package com.stit76.stscenes.common.scenes.scene.trigger;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.stit76.stscenes.client.gui.sceneCustomizer.triggerScreens.TouchTriggerScreen;
-import com.stit76.stscenes.common.scenes.scene.act.Act;
-import com.stit76.stscenes.common.scenes.scene.act.acts.FollowUpAct;
-import net.minecraft.client.Minecraft;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3f;
 
 public class TouchTrigger extends Trigger{
     public Vec3 point_1;
     public Vec3 point_2;
-    public Player player;
+    public String player_nick = "";
     public static final Codec<TouchTrigger> TOUCH_TRIGGER_CODEC = RecordCodecBuilder.create(instance -> // Given an instance
             instance.group(
                 Codec.BOOL.fieldOf("canuse").forGetter(TouchTrigger::isCanUse),
-                Codec.STRING.fieldOf("player_name").forGetter(TouchTrigger::getPlayerNick),
+                Codec.STRING.fieldOf("player_name").forGetter(TouchTrigger::getPlayer_nick),
                 Vec3.CODEC.fieldOf("point_1").forGetter(TouchTrigger::getPoint_1),
                 Vec3.CODEC.fieldOf("point_2").forGetter(TouchTrigger::getPoint_2)
             ).apply(instance, TouchTrigger::new)
@@ -26,12 +22,12 @@ public class TouchTrigger extends Trigger{
         this.setCanUse(canUse);
         this.point_1 = point_1;
         this.point_2 = point_2;
-        this.player = Minecraft.getInstance().getSingleplayerServer().getPlayerList().getPlayerByName(player_nick);
+        this.player_nick = player_nick;
     }
-    public TouchTrigger(Player player, Vec3 point_1,Vec3 point_2) {
+    public TouchTrigger(String player, Vec3 point_1, Vec3 point_2) {
         this.point_1 = point_1;
         this.point_2 = point_2;
-        this.player = player;
+        this.player_nick = player;
     }
     public TouchTrigger() {
     }
@@ -41,9 +37,10 @@ public class TouchTrigger extends Trigger{
     }
 
     @Override
-    protected boolean update() {
+    protected boolean update(MinecraftServer server) {
         Vec3 point_1 = this.point_1;
         Vec3 point_2 = this.point_2;
+        Player player = server.getPlayerList().getPlayerByName(this.getPlayer_nick());
         if(player != null && point_1 != null & point_2 != null){
             if(point_2.x < point_1.x){
                 double point_1_old = point_1.x;
@@ -66,11 +63,14 @@ public class TouchTrigger extends Trigger{
                 }
             }
         }
-        return super.update();
+        return super.update(server);
     }
 
-    public Player getPlayer() {
-        return player;
+    public String getPlayer_nick() {
+        return player_nick;
+    }
+    public void setPlayer_nick(String player_nick) {
+        this.player_nick = player_nick;
     }
     public Vec3 getPoint_1() {
         if(point_1 != null){
@@ -79,15 +79,9 @@ public class TouchTrigger extends Trigger{
         return new Vec3(0,0,0);
     }
     public Vec3 getPoint_2() {
-        if(point_2 != null){
+        if (point_2 != null) {
             return point_2;
         }
-        return new Vec3(0,0,0);
-    }
-    public String getPlayerNick() {
-        if(player != null){
-            return player.getName().getString();
-        }
-        return "";
+        return new Vec3(0, 0, 0);
     }
 }

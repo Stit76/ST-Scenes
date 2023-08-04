@@ -7,6 +7,7 @@ import com.stit76.stscenes.networking.packet.server.visualData.ChangeNameAlwaysV
 import com.stit76.stscenes.networking.packet.server.visualData.ChangeNameC2SPacket;
 import com.stit76.stscenes.networking.packet.server.visualData.ChangeNameVisibleC2SPacket;
 import com.stit76.stscenes.networking.packet.server.visualData.ChangeTextureC2SPacket;
+import com.stit76.stscenes.networking.packet.synchronization.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
@@ -60,6 +61,31 @@ public class SimpleNetworkWrapper {
                 .decoder(TellC2SPacket::new)
                 .encoder(TellC2SPacket::toBytes)
                 .consumerMainThread(TellC2SPacket::handler)
+                .add();
+        net.messageBuilder(SetScenesDataServerC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(SetScenesDataServerC2SPacket::new)
+                .encoder(SetScenesDataServerC2SPacket::toBytes)
+                .consumerMainThread(SetScenesDataServerC2SPacket::handler)
+                .add();
+        net.messageBuilder(LoadScenesListToClientC2SPacket.class,id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(LoadScenesListToClientC2SPacket::new)
+                .encoder(LoadScenesListToClientC2SPacket::toBytes)
+                .consumerMainThread(LoadScenesListToClientC2SPacket::handler)
+                .add();
+        net.messageBuilder(AddSceneToScenesDataC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(AddSceneToScenesDataC2SPacket::new)
+                .encoder(AddSceneToScenesDataC2SPacket::toBytes)
+                .consumerMainThread(AddSceneToScenesDataC2SPacket::handler)
+                .add();
+        net.messageBuilder(SetSceneInScenesDataC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(SetSceneInScenesDataC2SPacket::new)
+                .encoder(SetSceneInScenesDataC2SPacket::toBytes)
+                .consumerMainThread(SetSceneInScenesDataC2SPacket::handler)
+                .add();
+        net.messageBuilder(SetSceneActiveC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(SetSceneActiveC2SPacket::new)
+                .encoder(SetSceneActiveC2SPacket::toBytes)
+                .consumerMainThread(SetSceneActiveC2SPacket::handler)
                 .add();
 
     }

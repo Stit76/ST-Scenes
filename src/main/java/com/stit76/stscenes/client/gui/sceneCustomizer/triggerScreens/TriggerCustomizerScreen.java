@@ -3,6 +3,8 @@ package com.stit76.stscenes.client.gui.sceneCustomizer.triggerScreens;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.stit76.stscenes.STScenes;
+import com.stit76.stscenes.client.gui.STScreen;
+import com.stit76.stscenes.client.gui.sceneCustomizer.SceneCustomizerScreen;
 import com.stit76.stscenes.common.item.SceneCustomizer;
 import com.stit76.stscenes.common.scenes.scene.Scene;
 import com.stit76.stscenes.common.scenes.scene.trigger.TouchTrigger;
@@ -14,9 +16,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public class TriggerCustomizerScreen extends Screen {
+public class TriggerCustomizerScreen extends STScreen {
     public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/act_customizer_gui.png");
     private Screen lastScreen;
+    private SceneCustomizerScreen screen;
     private Scene scene;
     private int trig_num;
     private SceneCustomizer sceneCustomizer;
@@ -27,8 +30,9 @@ public class TriggerCustomizerScreen extends Screen {
     short num;
 
 
-    protected TriggerCustomizerScreen(Component p_96550_, Scene scene,int trig_num,SceneCustomizer sceneCustomizer,Screen lastScreen) {
+    protected TriggerCustomizerScreen(Component p_96550_,SceneCustomizerScreen screen, Scene scene,int trig_num,SceneCustomizer sceneCustomizer,Screen lastScreen) {
         super(p_96550_);
+        this.screen = screen;
         this.scene = scene;
         this.trig_num = trig_num;
         this.lastScreen = lastScreen;
@@ -41,7 +45,7 @@ public class TriggerCustomizerScreen extends Screen {
         topPos = this.height / 2 - (winSizeY / 2);
         Trigger trigger = scene.triggers.get(trig_num);
         if(trigger instanceof  TouchTrigger){
-            this.minecraft.setScreen(new TouchTriggerScreen(Component.nullToEmpty(trigger.name), (TouchTrigger) trigger,this.sceneCustomizer,this.lastScreen));
+            this.minecraft.setScreen(new TouchTriggerScreen(Component.nullToEmpty(trigger.name),screen, (TouchTrigger) trigger,this.sceneCustomizer,this.lastScreen));
         } else {
             initChangeTrigger(leftPos + 35,topPos + 65);
         }

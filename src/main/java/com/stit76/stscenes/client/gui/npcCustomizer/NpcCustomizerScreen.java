@@ -9,9 +9,12 @@ import com.stit76.stscenes.client.gui.components.CustomButton;
 import com.stit76.stscenes.client.gui.components.FollowCheckBox;
 import com.stit76.stscenes.client.gui.components.ShowNameCheckBox;
 import com.stit76.stscenes.common.entity.AbstractSTNPC;
+import com.stit76.stscenes.common.scenes.scene.Scenes;
+import com.stit76.stscenes.common.scenes.scene.act.acts.TellAct;
 import com.stit76.stscenes.networking.SimpleNetworkWrapper;
 import com.stit76.stscenes.networking.packet.server.visualData.ChangeNameC2SPacket;
 import com.stit76.stscenes.networking.packet.server.visualData.ChangeTextureC2SPacket;
+import com.stit76.stscenes.networking.packet.synchronization.SetSceneInScenesDataC2SPacket;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -25,25 +28,21 @@ public class NpcCustomizerScreen extends STScreen {
     public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/npc_spawner_gui.png");
     int xMouse;
     int yMouse;
-    int winSizeX = 314;
-    int winSizeY = 263;
+    int winSizeX = (int) (212 * 1.5);
+    int winSizeY = (int) (170 * 1.5);
     int leftPos = 0;
     int topPos = 0;
     boolean showModel;
     boolean showBehavior;
-    private Player player;
-    private String name;
     private AbstractSTNPC npc;
     private EditBox nameEditBox;
     private EditBox textureEditBox;
 
 
-    public NpcCustomizerScreen(Component p_96550_, AbstractSTNPC npc,Player player) {
+    public NpcCustomizerScreen(Component p_96550_, AbstractSTNPC npc) {
         super(p_96550_);
         this.showModel = true;
-        this.name = p_96550_.getString();
         this.npc = npc;
-        this.player = player;
     }
 
     @Override
@@ -85,9 +84,9 @@ public class NpcCustomizerScreen extends STScreen {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.setShaderTexture(0, background);
-        blit(poseStack, leftPos, topPos, 0, 0, winSizeX,winSizeY,405,405);
-        renderLine(poseStack,this.name,7,7,false);
-        InventoryScreen.renderEntityInInventoryFollowsMouse(poseStack, leftPos + 261, topPos + 80, 30, (float) (leftPos + 261) - this.xMouse, (float) (topPos + 80) - this.yMouse, this.npc);
+        blit(poseStack, leftPos, topPos, 0, 0, winSizeX,winSizeY, (int) (256 * 1.5), (int) (256 * 1.5));
+        renderLine(poseStack,this.title.getString(),7,7,false);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(poseStack, leftPos + 261, (int) (topPos + (58 * 1.5)), 30, (float) (leftPos + 261) - this.xMouse, (float) (topPos + 80) - this.yMouse, this.npc);
     }
     private void renderLine(PoseStack poseStack, String text, int x, int y,boolean isCentred) {
         if(isCentred){
@@ -96,32 +95,15 @@ public class NpcCustomizerScreen extends STScreen {
             drawString(poseStack, this.font, text, leftPos + x, topPos + y, 16777215);
         }
     }
-    private void addCustomButton(String text, int x, int y, Button.OnPress buttonOnPress) {
-        addRenderableWidget(customButton(text, x, y, buttonOnPress));
-    }
-
-    private CustomButton customButton(String text, int x, int y, Button.OnPress buttonOnPress) {
-        CustomButton customButton = new CustomButton(text,leftPos + x,
-                topPos + y, 101,22,
-                0,266,21 + 4,
-                background,405,405, buttonOnPress);
-        return customButton;
-    }
 
     private void addButtons() {
-        int x = 208;
-        int y = 107;
-        addCustomButton("Model", x, y, (p_93751_) -> {
+        int x = leftPos + (int) (141 * 1.5);
+        int y = topPos + (int) (83 * 1.5);
+        addRenderableWidget(new Button.Builder(Component.nullToEmpty("Model"),(p_93751_) -> {
             resetMenu();
             this.showModel = true;
             minecraft.setScreen(this);
-        });
-        addCustomButton("Behavior", x, y + (27 * 1), (p_93751_) -> {
-            saveModelMenu();
-            resetMenu();
-            this.showBehavior = true;
-            minecraft.setScreen(this);
-        });
+        }).pos(x, y).size((int) (67 * 1.5),20).build());
     }
     public void resetMenu(){
         this.showModel = false;
@@ -129,10 +111,10 @@ public class NpcCustomizerScreen extends STScreen {
     }
     private void renderMenu(){
         if(showModel){
-            nameEditBox = new EditBox(this.font,leftPos + 9,topPos + 27,194,16,Component.nullToEmpty("Name"));
-            textureEditBox = new EditBox(this.font,leftPos + 9,topPos + 27 + 16 + 5, 194 , 16,Component.nullToEmpty("Texture"));
-            AlwaysShowNameCheckBox alwaysShowTheName = new AlwaysShowNameCheckBox(this.npc,leftPos + 9 + 20 + 70,topPos + 27 + ((16 + 5) * 2),20,20,Component.nullToEmpty("Always"),npc.visualData.getAlwaysShowName(),true);
-            ShowNameCheckBox showName = new ShowNameCheckBox(this.npc,alwaysShowTheName,leftPos + 9,topPos + 27 + ((16 + 5) * 2),20,20,Component.nullToEmpty("Show name"),npc.visualData.getShowName(),true);
+            nameEditBox = new EditBox(this.font, (int) (leftPos + (6 * 1.5)), (int) (topPos + (22 * 1.5)), (int) (127 * 1.5),16,Component.nullToEmpty("Name"));
+            textureEditBox = new EditBox(this.font,(int) (leftPos + (6 * 1.5)), (int) ((int) (topPos + (22 * 1.5)) + 16 + (5 * 1.5)), (int) (127 * 1.5) , 16,Component.nullToEmpty("Texture"));
+            AlwaysShowNameCheckBox alwaysShowTheName = new AlwaysShowNameCheckBox(this.npc,(int) (leftPos + (6 * 1.5)) + 20 + 70, (int) (topPos + 27 + ((16 + 7 * 1.5) * 2)),20,20,Component.nullToEmpty("Always"),npc.visualData.getAlwaysShowName(),true);
+            ShowNameCheckBox showName = new ShowNameCheckBox(this.npc,alwaysShowTheName,(int) (leftPos + (6 * 1.5)), (int) (topPos + 27 + ((16 + 7 * 1.5) * 2)),20,20,Component.nullToEmpty("Show name"),npc.visualData.getShowName(),true);
 
             nameEditBox.setValue(npc.visualData.getName());
             textureEditBox.setMaxLength(400);

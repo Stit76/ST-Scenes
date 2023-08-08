@@ -25,7 +25,7 @@ public class NPCSpawner extends Item {
     public InteractionResult interactLivingEntity(ItemStack p_41398_, Player p_41399_, LivingEntity p_41400_, InteractionHand p_41401_) {
         if(p_41399_.getLevel().isClientSide){
             if(p_41400_ instanceof AbstractSTNPC) {
-                NpcCustomizerScreen npcCustomizerScreen = new NpcCustomizerScreen(Component.translatable("npc_spawner.npc_customizer_screen.title"), (AbstractSTNPC) p_41400_,p_41399_);
+                NpcCustomizerScreen npcCustomizerScreen = new NpcCustomizerScreen(Component.translatable("npc_spawner.npc_customizer_screen.title"), (AbstractSTNPC) p_41400_);
                 Minecraft.getInstance().setScreen(npcCustomizerScreen);
             }
         }

@@ -34,6 +34,7 @@ public abstract class AbstractSTNPC extends Animal {
     @Override
     protected void defineSynchedData() {
         this.getEntityData().define(this.visualData.TEXTURE,"stscenes:textures/entity/player/wide/steve.png");
+        this.getEntityData().define(this.visualData.URL,"");
         this.getEntityData().define(this.visualData.NAME,"Steve");
         this.getEntityData().define(this.visualData.SHOW_NAME,true);
         this.getEntityData().define(this.visualData.ALWAYES_SHOW_NAME,true);

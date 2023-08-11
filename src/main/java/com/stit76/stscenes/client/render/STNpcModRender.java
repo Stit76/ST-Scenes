@@ -27,45 +27,27 @@ public class STNpcModRender extends MobRenderer<STNpc, PlayerModel<STNpc>> {
 
     @Override
     public ResourceLocation getTextureLocation(STNpc p_114482_) {
-        //String texture = p_114482_.visualData.getTexture();
-        //String[] parts = texture.split(":");
-        //if(parts.length == 2){
-        //    String id = parts[0];
-        //    String filePath = parts[1];
-        //    if(isValidUsAscii(id) && isValidUsAscii(filePath)){
-        //        if(id == "minecraft"){return new ResourceLocation(filePath);}
-        //        return new ResourceLocation(id,filePath);
-        //    } else {
-        //        return new ResourceLocation("");
-        //    }
-        //}
-        //if(isValidUsAscii(parts[0])){
-        //    return new ResourceLocation(parts[0]);
-        //} else {
-        //    return new ResourceLocation("");
-        //}
-        return new ResourceLocation("");
+        String texture = p_114482_.visualData.getTexture();
+        String[] parts = texture.split(":");
+        if(parts.length == 2){
+            String id = parts[0];
+            String filePath = parts[1];
+            if(isValidUsAscii(id) && isValidUsAscii(filePath)){
+                if(id == "minecraft"){return new ResourceLocation(filePath);}
+                return new ResourceLocation(id,filePath);
+            } else {
+                return new ResourceLocation("");
+            }
+        }
+        if(isValidUsAscii(parts[0])){
+            return new ResourceLocation(parts[0]);
+        } else {
+            return new ResourceLocation("");
+        }
     }
-
-    public static ResourceLocation getPlayerSkin() {
-        //Получение профиля игрока "Infantt"
-        //GameProfile gameProfile = new GameProfile((UUID)null,"Infantt");
-        //try {
-        //    if(gameProfile != null){
-        //        MinecraftProfileTexture.Type textureType = MinecraftProfileTexture.Type.SKIN;
-        //        Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> profileTexture = Minecraft.getInstance().getSkinManager().getInsecureSkinInformation(gameProfile);
-        //        if (profileTexture != null) {
-        //            // Получение ResourceLocation скина
-        //            ResourceLocation skinLocation = Minecraft.getInstance().getSkinManager().registerTexture(profileTexture.get(textureType),textureType);
-        //            //Отправка ResourceLoaction скина
-        //            return Minecraft.getInstance().getSkinManager().getInsecureSkinLocation(gameProfile);
-        //        }
-        //    }
-        //} catch (Exception e) {
-        //    throw new RuntimeException(e);
-        //}
-        //return DefaultPlayerSkin.getDefaultSkin(); // Выкидывание стандартного скина если не срботают варианты выше
-        return null;
+    public ResourceLocation getPlayerSkinByName(String name){
+        GameProfile gameprofile = new GameProfile((UUID)null, name);
+        return Minecraft.getInstance().getSkinManager().getInsecureSkinLocation(gameprofile);
     }
 
     public static boolean isValidUsAscii (String s) {

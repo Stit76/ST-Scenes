@@ -2,22 +2,15 @@ package com.stit76.stscenes.client.render;
 
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.stit76.stscenes.common.entity.STNpc;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.loading.StringUtils;
 
 import java.nio.charset.Charset;
-import java.util.Map;
 import java.util.UUID;
 
 public class STNpcModRender extends MobRenderer<STNpc, PlayerModel<STNpc>> {

@@ -2,6 +2,7 @@ package com.stit76.stscenes.client.render;
 
 
 import com.mojang.authlib.GameProfile;
+import com.stit76.stscenes.client.render.models.STNpcModel;
 import com.stit76.stscenes.common.entity.STNpc;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -13,9 +14,9 @@ import net.minecraft.resources.ResourceLocation;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
-public class STNpcModRender extends MobRenderer<STNpc, PlayerModel<STNpc>> {
+public class STNpcModRender extends MobRenderer<STNpc, STNpcModel<STNpc>> {
     public STNpcModRender(EntityRendererProvider.Context context) {
-        super(context, new PlayerModel<>(context.bakeLayer(ModelLayers.PLAYER),false), 0.5f);
+        super(context, new STNpcModel<>(context.bakeLayer(STNpcModel.LAYER_LOCATION)), 0.5f);
     }
 
     @Override

@@ -6,11 +6,6 @@ import com.stit76.stscenes.STScenes;
 import com.stit76.stscenes.client.gui.STScreen;
 import com.stit76.stscenes.client.gui.components.StringButton;
 import com.stit76.stscenes.common.entity.AbstractSTNPC;
-import com.stit76.stscenes.common.scenes.scene.Scenes;
-import com.stit76.stscenes.common.scenes.scene.act.acts.TellAct;
-import com.stit76.stscenes.networking.SimpleNetworkWrapper;
-import com.stit76.stscenes.networking.packet.synchronization.SetSceneActiveC2SPacket;
-import com.stit76.stscenes.networking.packet.synchronization.SetSceneInScenesDataC2SPacket;
 import com.stit76.stscenes.utils.FileUtils;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -19,11 +14,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.jar.JarEntry;
 
 public class TextureCustomizerScreen extends STScreen {
     public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/textures_customizer_gui.png");
-    private String path = "C:/Users/Yruha & Muha/modding/mods/ST-Scenes/src/main/resources/assets/stscenes/textures/entity/player/wide";
+    private String fullPath = FileUtils.getSkinDirectory().toString();
+    private String jarPath = "assets/stscenes/textures/entity/player/wide/";
     private AbstractSTNPC npc;
     private Screen backScreen;
     short winSizeX = (int) (212 * 1.5);
@@ -66,44 +64,93 @@ public class TextureCustomizerScreen extends STScreen {
         addRenderableWidget(Button.builder(Component.nullToEmpty("Ok"),(p_93751_) -> {
             this.minecraft.setScreen(backScreen);
         }).pos((int) (leftPos + (142 * 1.5)), (int) (topPos + (136 * 1.5))).size((int) (60 * 1.5),20).build());
-        initDirectory(path);
+        initDirectory(this.fullPath);
     }
     public void initDirectory(String rootPath){
-        List<File> rss = FileUtils.getDirectoryFiles(rootPath);
-        StringButton backDirectButton = new StringButton( leftPos + 3,topPos + (30 * (0 + 1)) + (5 * 0),200,20,Component.nullToEmpty("<-"),(p_93751_ -> {
-            String str = rootPath;
-            int countCh = 0;
+        if(!FileUtils.isJarPath(rootPath)) {
+            List<File> rss = FileUtils.getDirectoryFiles(rootPath);
+            StringButton backDirectButton = new StringButton(leftPos + 3, topPos + (30 * (0 + 1)) + (5 * 0), 200, 20, Component.nullToEmpty("<-"), (p_93751_ -> {
+                String str = rootPath;
+                int countCh = 0;
+                for (int i = 0; i < str.length(); i++) {
+                    char ch = str.charAt(i);
+                    if (ch == '\\') {
+                        countCh = i;
+                    }
+                }
+                str = str.substring(0, countCh);
+                int index = str.indexOf("entity");
+                if(index >= 0){
+                    this.fullPath = str;
+                }
+                this.minecraft.setScreen(this);
+            }));
+            addRenderableWidget(backDirectButton);
+            for (int i = 0; i < rss.size(); i++) {
+                File file = rss.get(i);
+                if (file.isFile()) {
+                    int index = file.getPath().indexOf("textures");
+                    if (index >= 0) {
+                        String shortPath = file.getPath().substring(index);
+                        String toSendShortPath = STScenes.MODID + ":" + shortPath.replace('\\', '/');
+                        StringButton pathButton = new StringButton(leftPos + 3, topPos + (30 * (i + 2)) + (5 * i + 1), 200, 20, Component.nullToEmpty(shortPath), (p_93751_ -> {
+                            this.npc.visualData.setTexture(toSendShortPath);
+                        }));
+                        addRenderableWidget(pathButton);
+                    }
+                } else {
+                    String path = file.getPath();
+                    StringButton pathButton = new StringButton(leftPos + 3, topPos + (30 * (i + 2)) + (5 * i + 1), 200, 20, Component.nullToEmpty(path), (p_93751_ -> {
+                        this.fullPath = path;
+                        this.minecraft.setScreen(this);
+                    }));
+                    addRenderableWidget(pathButton);
+                }
+            }
+        } else {
+            initDirectoryInJar(this.fullPath);
+        }
+    }
+    public void initDirectoryInJar(String rootPath){
+        List<JarEntry> rss = FileUtils.getDirectoryFilesInJar(rootPath,this.jarPath);
+        StringButton backDirectButton = new StringButton( leftPos + 3,topPos + (30 * (0 + 1)) + (5 * 0),200,20,Component.nullToEmpty(".."),(p_93751_ -> {
+            String str = jarPath;
+            HashMap<Integer,Integer> sNum = new HashMap<>();
+            int charNum = 0;
             for (int i = 0; i < str.length(); i++) {
                 char ch = str.charAt(i);
                 if(ch == '/') {
-                    countCh = i;
+                    charNum++;
+                    sNum.put(charNum,i);
                 }
             }
-            str = str.substring(0,countCh);
-            this.path = str;
+            str = str.substring(0,sNum.get(charNum - 1)) + "/";
+            int index = str.indexOf("entity");
+            if(index >= 0){
+                this.jarPath = str;
+            }
             this.minecraft.setScreen(this);
         }));
         addRenderableWidget(backDirectButton);
         for (int i = 0; i < rss.size(); i++) {
-            File file = rss.get(i);
-            if(file.isFile()){
-                int index = file.getPath().indexOf("textures");
+            JarEntry file = rss.get(i);
+            if(file.isDirectory()){
+                String path = file.getName();
+                StringButton pathButton = new StringButton( leftPos + 3,topPos + (30 * (i + 2)) + (5 * i + 1),200,20,Component.nullToEmpty(path),(p_93751_ -> {
+                    this.jarPath = path;
+                    this.minecraft.setScreen(this);
+                }));
+                addRenderableWidget(pathButton);
+            } else {
+                int index = file.getName().indexOf("textures");
                 if(index >= 0){
-                    String shortPath = file.getPath().substring(index);
+                    String shortPath = file.getName().substring(index);
                     String toSendShortPath = STScenes.MODID + ":" + shortPath.replace('\\','/');
                     StringButton pathButton = new StringButton( leftPos + 3,topPos + (30 * (i + 2)) + (5 * i + 1),200,20,Component.nullToEmpty(shortPath),(p_93751_ -> {
                         this.npc.visualData.setTexture(toSendShortPath);
                     }));
                     addRenderableWidget(pathButton);
                 }
-            } else {
-                String path = file.getPath();
-                String nPath = path.replace('\\','/');
-                StringButton pathButton = new StringButton( leftPos + 3,topPos + (30 * (i + 2)) + (5 * i + 1),200,20,Component.nullToEmpty(path),(p_93751_ -> {
-                    this.path = nPath;
-                    this.minecraft.setScreen(this);
-                }));
-                addRenderableWidget(pathButton);
             }
         }
     }

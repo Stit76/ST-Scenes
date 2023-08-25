@@ -59,7 +59,7 @@ public class ScenesDataEvents {
         for (int i = 0; i < scenesData.getScenesList().size(); i++) {
             Scene scene = scenesData.getScenesList().get(i);
             for (int j = 0; j < scene.triggers.size(); j++) {
-                Trigger trigger = scene.triggers.get(i);
+                Trigger trigger = scene.triggers.get(j);
                 if(trigger.isTrue(e.getServer())){
                     scene.start();
                     scenesData.setDirty();

@@ -14,6 +14,11 @@ public class STNPCVisualData {
     public static final EntityDataAccessor<Boolean> SHOW_NAME = SynchedEntityData.defineId(AbstractSTNPC.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> ALWAYES_SHOW_NAME = SynchedEntityData.defineId(AbstractSTNPC.class, EntityDataSerializers.BOOLEAN);
 
+    public static final EntityDataAccessor<String> HEAD_MODEL = SynchedEntityData.defineId(AbstractSTNPC.class, EntityDataSerializers.STRING);
+    public static final EntityDataAccessor<String> BODY_MODEL = SynchedEntityData.defineId(AbstractSTNPC.class, EntityDataSerializers.STRING);
+    public static final EntityDataAccessor<String> ARMS_MODEL = SynchedEntityData.defineId(AbstractSTNPC.class, EntityDataSerializers.STRING);
+    public static final EntityDataAccessor<String> LEGS_MODEL = SynchedEntityData.defineId(AbstractSTNPC.class, EntityDataSerializers.STRING);
+
 
     public STNPCVisualData(AbstractSTNPC npc){
         this.npc = npc;
@@ -24,6 +29,11 @@ public class STNPCVisualData {
         tag.putString("Texture",getTexture());
         tag.putBoolean("showName", getShowName());
         tag.putBoolean("showNameOnHover", getAlwaysShowName());
+
+        tag.putString("HeadModel",getHeadModel());
+        tag.putString("BodyModel",getBodyModel());
+        tag.putString("ArmsModel",getArmsModel());
+        tag.putString("LegsModel", getLegsModel());
         return tag;
     }
 
@@ -33,6 +43,11 @@ public class STNPCVisualData {
         this.setTexture(tag.getString("Texture"));
         this.setShowName(tag.getBoolean("showName"));
         this.setAlwaysShowName(tag.getBoolean("showNameOnHover"));
+
+        this.setHeadModel(tag.getString("HeadModel"));
+        this.setBodyModel(tag.getString("BodyModel"));
+        this.setArmsModel(tag.getString("ArmsModel"));
+        this.setLegsModel(tag.getString("LegsModel"));
     }
     public void setName(String name) {
         if (name != null) {
@@ -67,5 +82,39 @@ public class STNPCVisualData {
         npc.getEntityData().set(this.ALWAYES_SHOW_NAME,show);
     }
     public boolean getAlwaysShowName(){return npc.getEntityData().get(this.ALWAYES_SHOW_NAME);}
+
+
+    public void setHeadModel(String headModel) {
+        if (headModel != null) {
+            npc.getEntityData().set(this.HEAD_MODEL,headModel.toLowerCase());
+        }
+    }
+    public String getHeadModel(){
+        return this.npc.getEntityData().get(this.HEAD_MODEL);
+    }
+    public void setBodyModel(String bodyModel) {
+        if (bodyModel != null) {
+            npc.getEntityData().set(this.BODY_MODEL,bodyModel.toLowerCase());
+        }
+    }
+    public String getBodyModel(){
+        return this.npc.getEntityData().get(this.BODY_MODEL);
+    }
+    public void setArmsModel(String armsModel) {
+        if (armsModel != null) {
+            npc.getEntityData().set(this.ARMS_MODEL,armsModel.toLowerCase());
+        }
+    }
+    public String getArmsModel(){
+        return this.npc.getEntityData().get(this.ARMS_MODEL);
+    }
+    public void setLegsModel(String legsModel) {
+        if (legsModel != null) {
+            npc.getEntityData().set(this.LEGS_MODEL,legsModel.toLowerCase());
+        }
+    }
+    public String getLegsModel(){
+        return this.npc.getEntityData().get(this.LEGS_MODEL);
+    }
 
 }

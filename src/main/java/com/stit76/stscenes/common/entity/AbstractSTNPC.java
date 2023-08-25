@@ -39,6 +39,11 @@ public abstract class AbstractSTNPC extends Animal {
         this.getEntityData().define(this.visualData.SHOW_NAME,true);
         this.getEntityData().define(this.visualData.ALWAYES_SHOW_NAME,true);
 
+        this.getEntityData().define(this.visualData.HEAD_MODEL,"none");
+        this.getEntityData().define(this.visualData.BODY_MODEL,"none");
+        this.getEntityData().define(this.visualData.ARMS_MODEL,"slim");
+        this.getEntityData().define(this.visualData.LEGS_MODEL,"none");
+        //
         this.getEntityData().define(this.behaviourData.FOLLOW,false);
         this.getEntityData().define(this.behaviourData.FOLLOW_PLAYER,"");
         super.defineSynchedData();

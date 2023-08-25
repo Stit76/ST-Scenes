@@ -2,11 +2,9 @@ package com.stit76.stscenes.client.render;
 
 
 import com.mojang.authlib.GameProfile;
-import com.stit76.stscenes.client.render.models.STNpcModel;
-import com.stit76.stscenes.common.entity.STNpc;
+import com.stit76.stscenes.client.render.models.STNpc64x64Model;
+import com.stit76.stscenes.common.entity.STNpc64x64;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -14,13 +12,13 @@ import net.minecraft.resources.ResourceLocation;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
-public class STNpcModRender extends MobRenderer<STNpc, STNpcModel<STNpc>> {
-    public STNpcModRender(EntityRendererProvider.Context context) {
-        super(context, new STNpcModel<>(context.bakeLayer(STNpcModel.LAYER_LOCATION)), 0.5f);
+public class STNpc64x64ModRender extends MobRenderer<STNpc64x64, STNpc64x64Model<STNpc64x64>> {
+    public STNpc64x64ModRender(EntityRendererProvider.Context context) {
+        super(context, new STNpc64x64Model<>(context.bakeLayer(STNpc64x64Model.LAYER_LOCATION)), 0.5f);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(STNpc p_114482_) {
+    public ResourceLocation getTextureLocation(STNpc64x64 p_114482_) {
         String texture = p_114482_.visualData.getTexture();
         String[] parts = texture.split(":");
         if(parts.length == 2){

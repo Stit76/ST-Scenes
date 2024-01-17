@@ -1,7 +1,7 @@
 package com.stit76.stscenes.common.item;
 
 import com.stit76.stscenes.utils.FileUtils;
-import com.stit76.stscenes.client.gui.npcCustomizer.NpcCustomizerScreen;
+import com.stit76.stscenes.client.gui.npccustomizer.NpcCustomizerScreen;
 import com.stit76.stscenes.common.entity.AbstractSTNPC;
 import com.stit76.stscenes.core.init.EntityInit;
 import net.minecraft.client.Minecraft;
@@ -25,9 +25,9 @@ public class NPCSpawner extends Item {
 
     @Override
     public InteractionResult interactLivingEntity(ItemStack p_41398_, Player p_41399_, LivingEntity p_41400_, InteractionHand p_41401_) {
-        if(p_41399_.getLevel().isClientSide){
+        if(p_41399_.level().isClientSide){
             if(p_41399_.isShiftKeyDown()){
-                FileUtils.getDirectoryFiles("C:/Users/Yruha & Muha/modding/mods/ST-Scenes/src/main/resources/assets/stscenes/textures/entity/player");
+                p_41399_.sendSystemMessage(Component.nullToEmpty("UUID: " + p_41400_.getStringUUID()));
             } else {
                 if(p_41400_ instanceof AbstractSTNPC) {
                     NpcCustomizerScreen npcCustomizerScreen = new NpcCustomizerScreen(Component.translatable("npc_spawner.npc_customizer_screen.title"), (AbstractSTNPC) p_41400_);

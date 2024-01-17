@@ -11,25 +11,25 @@ import com.stit76.stscenes.common.scenes.scene.act.Act;
 import com.stit76.stscenes.networking.SimpleNetworkWrapper;
 import com.stit76.stscenes.networking.packet.synchronization.SetSceneInScenesDataC2SPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class ArgScreen extends STScreen {
     public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/act_customizer_gui.png");
-    int winSizeX = (int) (119 * 1.5);
-    int winSizeY = (int) (166 * 1.5);
-    int leftPos = 0;
-    int topPos = 0;
-    protected SceneCustomizerScreen back_screen;
+    protected int winSizeX = (int) (119 * 1.5);
+    protected int winSizeY = (int) (166 * 1.5);
+    protected int leftPos = 0;
+    protected int topPos = 0;
+    protected SceneCustomizerScreen backScreen;
     protected Act act;
     private TextEditBox editBox_1;
 
 
-    protected ArgScreen(Component p_96550_,SceneCustomizerScreen back_screen,Act act) {
+    protected ArgScreen(Component p_96550_, SceneCustomizerScreen back_screen, Act act) {
         super(p_96550_);
-        this.back_screen = back_screen;
+        this.backScreen = back_screen;
         this.act = act;
     }
 
@@ -38,7 +38,7 @@ public abstract class ArgScreen extends STScreen {
         leftPos = this.width / 2 - (winSizeX / 2);
         topPos = this.height / 2 - (winSizeY / 2);
         editBox_1 = new TextEditBox(Minecraft.getInstance().font,leftPos + 15,topPos + (winSizeY - 20),60,15,Component.nullToEmpty("Delay"));
-        editBox_1.setTitle("Delay:");
+        editBox_1.setTitle(Component.translatable("scene_customizer.arg_screen.delay").getString()+":");
         editBox_1.setValue(String.valueOf(act.delay));
         addRenderableWidget(editBox_1);
         addRenderableWidget(Button.builder(Component.nullToEmpty("Ok"),(p_93751_) -> {
@@ -48,36 +48,49 @@ public abstract class ArgScreen extends STScreen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int p_96563_, int p_96564_, float p_96565_) {
+    public void render(GuiGraphics poseStack, int p_96563_, int p_96564_, float p_96565_) {
         renderBackground(poseStack);
         renderBg(poseStack);
         super.render(poseStack, p_96563_, p_96564_, p_96565_);
     }
-    private void renderLine(PoseStack poseStack, String text, int x, int y,boolean isCentred) {
+    private void renderLine(GuiGraphics poseStack, String text, int x, int y,boolean isCentred) {
         if(isCentred){
-            drawCenteredString(poseStack, Minecraft.getInstance().font, text, leftPos + x, topPos + y, 16777215);
+            poseStack.drawCenteredString(Minecraft.getInstance().font, text, leftPos + x, topPos + y, 16777215);
         }else {
-            drawString(poseStack, Minecraft.getInstance().font, text, leftPos + x, topPos + y, 16777215);
+            poseStack.drawString(Minecraft.getInstance().font, text, leftPos + x, topPos + y, 16777215);
         }
     }
-    private void renderBg(PoseStack poseStack) {
-        RenderSystem.setShaderTexture(0, background);
-        blit(poseStack, leftPos, topPos, 0, 0, winSizeX,winSizeY, (int) (256 * 1.5), (int) (256 * 1.5));
+    private void renderBg(GuiGraphics poseStack) {
+        poseStack.blit(background,leftPos, topPos, 0, 0, winSizeX,winSizeY, (int) (256 * 1.5), (int) (256 * 1.5));
         renderLine(poseStack,this.title.getString(),7,7,false);
     }
     protected void OnPressOk(){
-        act.delay = Integer.parseInt(editBox_1.getValue());
-        this.minecraft.setScreen(this.back_screen);
+        if(editBox_1.getValue() != null && !editBox_1.getValue().isEmpty()){
+            boolean isOnlyDigits = true;
+            for(int i = 0; i < editBox_1.getValue().length() && isOnlyDigits; i++) {
+                if(!Character.isDigit(editBox_1.getValue().charAt(i))) {
+                    isOnlyDigits = false;
+                }
+            }
+            if(isOnlyDigits){
+                act.delay = Integer.parseInt(editBox_1.getValue());
+            }
+        }
+        this.minecraft.setScreen(this.backScreen);
     }
 
     @Override
     public void removed() {
-        SimpleNetworkWrapper.sendToServer(new SetSceneInScenesDataC2SPacket(back_screen.num,back_screen.scene, Scenes.sceneList));
+        SimpleNetworkWrapper.sendToServer(new SetSceneInScenesDataC2SPacket(this.backScreen.num,this.backScreen.scene, Scenes.sceneList));
         super.removed();
     }
 
     @Override
     public boolean isPauseScreen() {
+        return false;
+    }
+    @Override
+    public boolean isClientUpdate() {
         return false;
     }
 }

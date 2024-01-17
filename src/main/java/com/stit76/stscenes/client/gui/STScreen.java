@@ -7,4 +7,7 @@ public class STScreen extends Screen {
     protected STScreen(Component p_96550_) {
         super(p_96550_);
     }
+    public boolean isClientUpdate(){
+        return true;
+    }
 }

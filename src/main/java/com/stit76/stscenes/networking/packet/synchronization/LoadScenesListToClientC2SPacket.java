@@ -1,9 +1,6 @@
 package com.stit76.stscenes.networking.packet.synchronization;
 
 import com.stit76.stscenes.client.gui.STScreen;
-import com.stit76.stscenes.client.gui.sceneCustomizer.SceneCustomizerScreen;
-import com.stit76.stscenes.client.gui.scenesBrowser.ScenesBrowser;
-import com.stit76.stscenes.common.item.SceneCustomizer;
 import com.stit76.stscenes.common.scenes.data.ScenesData;
 import com.stit76.stscenes.common.scenes.scene.Scene;
 import com.stit76.stscenes.common.scenes.scene.Scenes;
@@ -39,7 +36,9 @@ public class LoadScenesListToClientC2SPacket {
                 Scenes.sceneList = this.sceneList;
                 Screen nowScreen = Minecraft.getInstance().screen;
                 if(nowScreen instanceof STScreen){
-                    Minecraft.getInstance().setScreen(nowScreen);
+                    if(((STScreen) nowScreen).isClientUpdate()){
+                        Minecraft.getInstance().setScreen(nowScreen);
+                    }
                 }
                 DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
                         () -> () -> success.set(true));

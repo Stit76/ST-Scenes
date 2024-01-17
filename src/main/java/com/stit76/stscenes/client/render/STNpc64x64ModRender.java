@@ -5,9 +5,13 @@ import com.mojang.authlib.GameProfile;
 import com.stit76.stscenes.client.render.models.STNpc64x64Model;
 import com.stit76.stscenes.common.entity.STNpc64x64;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.CreeperModel;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.nio.charset.Charset;
 import java.util.UUID;
@@ -16,7 +20,6 @@ public class STNpc64x64ModRender extends MobRenderer<STNpc64x64, STNpc64x64Model
     public STNpc64x64ModRender(EntityRendererProvider.Context context) {
         super(context, new STNpc64x64Model<>(context.bakeLayer(STNpc64x64Model.LAYER_LOCATION)), 0.5f);
     }
-
     @Override
     public ResourceLocation getTextureLocation(STNpc64x64 p_114482_) {
         String texture = p_114482_.visualData.getTexture();
@@ -36,10 +39,6 @@ public class STNpc64x64ModRender extends MobRenderer<STNpc64x64, STNpc64x64Model
         } else {
             return new ResourceLocation("");
         }
-    }
-    public ResourceLocation getPlayerSkinByName(String name){
-        GameProfile gameprofile = new GameProfile((UUID)null, name);
-        return Minecraft.getInstance().getSkinManager().getInsecureSkinLocation(gameprofile);
     }
 
     public static boolean isValidUsAscii (String s) {

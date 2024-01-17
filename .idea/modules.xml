@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ST-Scenes-1.20.1-G.iml" filepath="$PROJECT_DIR$/ST-Scenes-1.20.1-G.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ST-Scenes-1.20.1-G.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ST-Scenes-1.20.1-G.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ST-Scenes-1.20.1-G.test.iml" filepath="$PROJECT_DIR$/.idea/modules/ST-Scenes-1.20.1-G.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ST-Scenes-1.20.1.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ST-Scenes-1.20.1.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ST-Scenes-1.20.1.test.iml" filepath="$PROJECT_DIR$/.idea/modules/ST-Scenes-1.20.1.test.iml" />
     </modules>
   </component>
 </project>

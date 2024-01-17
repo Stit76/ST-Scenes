@@ -1,5 +1,7 @@
 package com.stit76.stscenes.common.ai.goal;
 
+import com.stit76.stscenes.common.entity.AbstractSTNPC;
+import com.stit76.stscenes.common.entity.data.STNPCBehaviourData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,13 +14,7 @@ import javax.annotation.Nullable;
 import java.util.EnumSet;
 
 public class AlwaysLookAtPlayerGoal extends Goal {
-    public static final float DEFAULT_PROBABILITY = 0.02F;
     protected final Mob mob;
-    @Nullable
-    protected Entity lookAt;
-    protected final float lookDistance;
-    private int lookTime;
-    private final boolean onlyHorizontal;
     protected final Class<? extends LivingEntity> lookAtType;
     protected final TargetingConditions lookAtContext;
 
@@ -33,8 +29,6 @@ public class AlwaysLookAtPlayerGoal extends Goal {
     public AlwaysLookAtPlayerGoal(Mob p_148118_, Class<? extends LivingEntity> p_148119_, float p_148120_,boolean p_148122_) {
         this.mob = p_148118_;
         this.lookAtType = p_148119_;
-        this.lookDistance = p_148120_;
-        this.onlyHorizontal = p_148122_;
         this.setFlags(EnumSet.of(Goal.Flag.LOOK));
         if (p_148119_ == Player.class) {
             this.lookAtContext = TargetingConditions.forNonCombat().range((double)p_148120_).selector((p_25531_) -> {
@@ -47,48 +41,23 @@ public class AlwaysLookAtPlayerGoal extends Goal {
     }
 
     public boolean canUse() {
-        if (false/*this.mob.getRandom().nextFloat() >= this.probability*/) {
-            return false;
-        } else {
-            if (this.mob.getTarget() != null) {
-                this.lookAt = this.mob.getTarget();
-            }
-
-            if (this.lookAtType == Player.class) {
-                this.lookAt = this.mob.level.getNearestPlayer(this.lookAtContext, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
-            } else {
-                this.lookAt = this.mob.level.getNearestEntity(this.mob.level.getEntitiesOfClass(this.lookAtType, this.mob.getBoundingBox().inflate((double)this.lookDistance, 3.0D, (double)this.lookDistance), (p_148124_) -> {
-                    return true;
-                }), this.lookAtContext, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
-            }
-
-            return this.lookAt != null;
-        }
+        return ((AbstractSTNPC) mob).behaviourData.getLookAtPoint();
     }
 
     public boolean canContinueToUse() {
-        if (!this.lookAt.isAlive()) {
-            return false;
-        } else if (this.mob.distanceToSqr(this.lookAt) > (double)(this.lookDistance * this.lookDistance)) {
-            return false;
-        } else {
-            return true;
-        }
+        return ((AbstractSTNPC) mob).behaviourData.getLookAtPoint();
     }
 
     public void start() {
-        this.lookTime = this.adjustedTickDelay(40 + this.mob.getRandom().nextInt(40));
+
     }
 
     public void stop() {
-        this.lookAt = null;
+
     }
 
     public void tick() {
-        if (this.lookAt.isAlive()) {
-            double d0 = this.onlyHorizontal ? this.mob.getEyeY() : this.lookAt.getEyeY();
-            this.mob.getLookControl().setLookAt(this.lookAt.getX(), d0, this.lookAt.getZ());
-            --this.lookTime;
-        }
+        STNPCBehaviourData bd = ((AbstractSTNPC) mob).behaviourData;
+        this.mob.getLookControl().setLookAt(bd.getPointLook().x, bd.getPointLook().y, bd.getPointLook().z);
     }
 }

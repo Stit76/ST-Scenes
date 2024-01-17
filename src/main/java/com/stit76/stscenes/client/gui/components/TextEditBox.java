@@ -3,6 +3,7 @@ package com.stit76.stscenes.client.gui.components;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
@@ -19,11 +20,11 @@ public class TextEditBox extends EditBox {
     }
 
     @Override
-    public void renderWidget(PoseStack p_94160_, int p_94161_, int p_94162_, float p_94163_) {
+    public void renderWidget(GuiGraphics p_94160_, int p_94161_, int p_94162_, float p_94163_) {
         if(centred){
-            drawCenteredString(p_94160_, Minecraft.getInstance().font,this.title,this.getX()+(this.width / 2),this.getY() - 10,14737632);
+            p_94160_.drawCenteredString( Minecraft.getInstance().font,this.title,this.getX()+(this.width / 2),this.getY() - 10,14737632);
         } else {
-            drawString(p_94160_, Minecraft.getInstance().font,this.title,this.getX()-title.length() - 2,this.getY() + (this.height/4),14737632);
+            p_94160_.drawString(Minecraft.getInstance().font,this.title,this.getX()-title.length() - 2,this.getY() + (this.height/4),14737632);
         }
         super.renderWidget(p_94160_, p_94161_, p_94162_, p_94163_);
     }

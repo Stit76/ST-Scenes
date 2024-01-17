@@ -1,12 +1,12 @@
 package com.stit76.stscenes.networking;
 
 import com.stit76.stscenes.STScenes;
-import com.stit76.stscenes.networking.packet.server.act.FollowUpC2SPacket;
-import com.stit76.stscenes.networking.packet.server.act.TellC2SPacket;
-import com.stit76.stscenes.networking.packet.server.visualData.ChangeNameAlwaysVisibleC2SPacket;
-import com.stit76.stscenes.networking.packet.server.visualData.ChangeNameC2SPacket;
-import com.stit76.stscenes.networking.packet.server.visualData.ChangeNameVisibleC2SPacket;
-import com.stit76.stscenes.networking.packet.server.visualData.ChangeTextureC2SPacket;
+import com.stit76.stscenes.networking.packet.client.ClearSelectionWindowScreenC2SPacket;
+import com.stit76.stscenes.networking.packet.client.SetSelectionWindowScreenC2SPacket;
+import com.stit76.stscenes.networking.packet.server.act.*;
+import com.stit76.stscenes.networking.packet.server.behaviourData.ChangeImmortalityC2SPacket;
+import com.stit76.stscenes.networking.packet.server.behaviourData.ResetBehaviorDataNPCSC2SPacket;
+import com.stit76.stscenes.networking.packet.server.visualData.*;
 import com.stit76.stscenes.networking.packet.synchronization.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,10 +52,10 @@ public class SimpleNetworkWrapper {
                 .encoder(ChangeNameAlwaysVisibleC2SPacket::toBytes)
                 .consumerMainThread(ChangeNameAlwaysVisibleC2SPacket::handler)
                 .add();
-        net.messageBuilder(FollowUpC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(FollowUpC2SPacket::new)
-                .encoder(FollowUpC2SPacket::toBytes)
-                .consumerMainThread(FollowUpC2SPacket::handler)
+        net.messageBuilder(FollowC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(FollowC2SPacket::new)
+                .encoder(FollowC2SPacket::toBytes)
+                .consumerMainThread(FollowC2SPacket::handler)
                 .add();
         net.messageBuilder(TellC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(TellC2SPacket::new)
@@ -87,7 +87,61 @@ public class SimpleNetworkWrapper {
                 .encoder(SetSceneActiveC2SPacket::toBytes)
                 .consumerMainThread(SetSceneActiveC2SPacket::handler)
                 .add();
-
+        net.messageBuilder(DeleteSceneFromSceneList.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(DeleteSceneFromSceneList::new)
+                .encoder(DeleteSceneFromSceneList::toBytes)
+                .consumerMainThread(DeleteSceneFromSceneList::handler)
+                .add();
+        net.messageBuilder(ChangeNPCModelPart.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(ChangeNPCModelPart::new)
+                .encoder(ChangeNPCModelPart::toBytes)
+                .consumerMainThread(ChangeNPCModelPart::handler)
+                .add();
+        net.messageBuilder(TeleportToC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(TeleportToC2SPacket::new)
+                .encoder(TeleportToC2SPacket::toBytes)
+                .consumerMainThread(TeleportToC2SPacket::handler)
+                .add();
+        net.messageBuilder(GoToPointC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(GoToPointC2SPacket::new)
+                .encoder(GoToPointC2SPacket::toBytes)
+                .consumerMainThread(GoToPointC2SPacket::handler)
+                .add();
+        net.messageBuilder(LookAtPointC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(LookAtPointC2SPacket::new)
+                .encoder(LookAtPointC2SPacket::toBytes)
+                .consumerMainThread(LookAtPointC2SPacket::handler)
+                .add();
+        net.messageBuilder(LookAtPointC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(LookAtPointC2SPacket::new)
+                .encoder(LookAtPointC2SPacket::toBytes)
+                .consumerMainThread(LookAtPointC2SPacket::handler)
+                .add();
+        net.messageBuilder(ChangeImmortalityC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(ChangeImmortalityC2SPacket::new)
+                .encoder(ChangeImmortalityC2SPacket::toBytes)
+                .consumerMainThread(ChangeImmortalityC2SPacket::handler)
+                .add();
+        net.messageBuilder(SetSceneLastPlayerC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(SetSceneLastPlayerC2SPacket::new)
+                .encoder(SetSceneLastPlayerC2SPacket::toBytes)
+                .consumerMainThread(SetSceneLastPlayerC2SPacket::handler)
+                .add();
+        net.messageBuilder(SetSelectionWindowScreenC2SPacket.class,id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(SetSelectionWindowScreenC2SPacket::new)
+                .encoder(SetSelectionWindowScreenC2SPacket::toBytes)
+                .consumerMainThread(SetSelectionWindowScreenC2SPacket::handler)
+                .add();
+        net.messageBuilder(ClearSelectionWindowScreenC2SPacket.class,id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(ClearSelectionWindowScreenC2SPacket::new)
+                .encoder(ClearSelectionWindowScreenC2SPacket::toBytes)
+                .consumerMainThread(ClearSelectionWindowScreenC2SPacket::handler)
+                .add();
+        net.messageBuilder(ResetBehaviorDataNPCSC2SPacket.class,id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(ResetBehaviorDataNPCSC2SPacket::new)
+                .encoder(ResetBehaviorDataNPCSC2SPacket::toBytes)
+                .consumerMainThread(ResetBehaviorDataNPCSC2SPacket::handler)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message){

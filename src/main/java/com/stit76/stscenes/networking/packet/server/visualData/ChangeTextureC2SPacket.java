@@ -32,7 +32,7 @@ public class ChangeTextureC2SPacket {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
-            ServerLevel level = player.getLevel();
+            ServerLevel level = player.serverLevel();
             Entity entity = level.getEntity(this.entityUUID);
 
             if(entity instanceof AbstractSTNPC){

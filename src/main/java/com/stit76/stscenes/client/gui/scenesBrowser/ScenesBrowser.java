@@ -11,6 +11,8 @@ import com.stit76.stscenes.common.scenes.scene.Scene;
 import com.stit76.stscenes.common.scenes.scene.Scenes;
 import com.stit76.stscenes.networking.SimpleNetworkWrapper;
 import com.stit76.stscenes.networking.packet.synchronization.AddSceneToScenesDataC2SPacket;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,8 +21,8 @@ import net.minecraft.world.entity.player.Player;
 import java.util.List;
 
 public class ScenesBrowser extends STScreen {
-    public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/scenes_browser_gui.png");
-    private final ResourceLocation buttons = new ResourceLocation("textures/gui/resource_packs.png");
+    public static final ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/scenes_browser_gui.png");
+    private static final ResourceLocation buttons = new ResourceLocation("textures/gui/resource_packs.png");
 
     public SceneCustomizer sceneCustomizer;
     public Player player;
@@ -50,35 +52,28 @@ public class ScenesBrowser extends STScreen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int p_96563_, int p_96564_, float p_96565_) {
+    public void render(GuiGraphics poseStack, int p_96563_, int p_96564_, float p_96565_) {
         renderBackground(poseStack);
         renderBg(poseStack);
-        drawCenteredString(poseStack, this.font, page + "/" + maxPage, leftPos + (winSizeX - 20),(int) (topPos + (140 * 1.5)) + 12, 16777215);
+        poseStack.drawCenteredString(this.font, page + "/" + maxPage, leftPos + (winSizeX - 20),(int) (topPos + (140 * 1.5)) + 12, 16777215);
         super.render(poseStack, p_96563_, p_96564_, p_96565_);
     }
-    private void renderLine(PoseStack poseStack, String text, int x, int y,boolean isCentred) {
-        if(isCentred){
-            drawCenteredString(poseStack, this.font, text, leftPos + x, topPos + y, 16777215);
-        }else {
-            drawString(poseStack, this.font, text, leftPos + x, topPos + y, 16777215);
-        }
-    }
-    private void renderBg(PoseStack poseStack) {
-        RenderSystem.setShaderTexture(0, background);
-        blit(poseStack, leftPos, topPos, 0, 0, winSizeX,winSizeY, (int) (256 * 1.5), (int) (256 * 1.5));
-        renderLine(poseStack,this.title.getString(),7,7,false);
+    private void renderBg(GuiGraphics poseStack) {
+        //RenderSystem.setShaderTexture(0, background);
+        poseStack.blit(background, leftPos, topPos, 0, 0, winSizeX,winSizeY, (int) (256 * 1.5), (int) (256 * 1.5));
+        poseStack.drawString(Minecraft.getInstance().font,this.title.getString(),leftPos + 7,topPos + 7,16777215);
     }
     private void initTools(){
         //198 : 4
         addRenderableWidget(new ImageButton((int) (leftPos + (198 * 1.5)), (int) (topPos + (4 * 1.5)), (int) (9 * 1.5),
                 (int) (9 * 1.5), (int) (223 * 1.5),0, (int) (9 * 1.5),background, (int) (256 * 1.5), (int) (256 * 1.5),
                 (p_93751_) -> {
-            Scene scene = new Scene("Test");
-            scene.setName("New scene");
-            scene.updateDate();
-            //if(sceneList.size() > page * line_on_page){NextPage();}
-            SimpleNetworkWrapper.sendToServer(new AddSceneToScenesDataC2SPacket(scene,Scenes.sceneList));
-        }));
+                    Scene scene = new Scene("Test");
+                    scene.setName("New scene");
+                    scene.updateDate();
+                    //if(sceneList.size() > page * line_on_page){NextPage();}
+                    SimpleNetworkWrapper.sendToServer(new AddSceneToScenesDataC2SPacket(scene,Scenes.sceneList));
+                }));
         addRenderableWidget(new ImageButton((int) (leftPos + (8 * 1.5)), (int) (topPos + (140 * 1.5)),32,32,32,0,32,buttons,256,256,(p_96713_) ->{
             PreviousPage();
             this.minecraft.setScreen(this);
@@ -105,7 +100,7 @@ public class ScenesBrowser extends STScreen {
     }
     private void initScene(short num,Scene scene, int x, int y, int sizeX, int sizeY){
         addRenderableWidget(new SceneButton(x,y,sizeX,sizeY,Component.nullToEmpty(scene.getName()),(p_93751_) -> {
-            this.minecraft.setScreen(new SceneCustomizerScreen(num,scene,sceneCustomizer));
+            this.minecraft.setScreen(new SceneCustomizerScreen(num,scene,sceneCustomizer,this));
         },scene));
     }
     public void NextPage(){

@@ -2,15 +2,16 @@ package com.stit76.stscenes.common.scenes.scene;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.stit76.stscenes.common.entity.AbstractSTNPC;
 import com.stit76.stscenes.common.scenes.scene.act.Act;
-import com.stit76.stscenes.common.scenes.scene.act.Acts;
+import com.stit76.stscenes.common.scenes.scene.act.compoundact.CAct;
+import com.stit76.stscenes.common.scenes.scene.act.ActCodecs;
 import com.stit76.stscenes.common.scenes.scene.trigger.Trigger;
 import com.stit76.stscenes.common.scenes.scene.trigger.Triggers;
 import com.stit76.stscenes.networking.SimpleNetworkWrapper;
-import com.stit76.stscenes.networking.packet.synchronization.LoadScenesListToClientC2SPacket;
+import com.stit76.stscenes.networking.packet.server.behaviourData.ResetBehaviorDataNPCSC2SPacket;
+import net.minecraft.core.UUIDUtil;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,23 +23,29 @@ import java.util.UUID;
 
 public class Scene {
     public Logger LOGGER = LogManager.getLogger();
+    private UUID lastPlayer = java.util.UUID.randomUUID();
     public UUID UUID;
     private String name;
     private String date;
     public List<Act> acts = new ArrayList<>();
     public int activeAct = 0;
     public int tick = 0;
+    private boolean loop = false;
+    private boolean restTriggers = false;
     private boolean active = false;
     public List<Trigger> triggers = new ArrayList<>();
     public static final Codec<Scene> SCENE_CODEC = RecordCodecBuilder.create(instance -> // Given an instance
             instance.group(
                     Codec.STRING.fieldOf("uuid").forGetter(Scene::getUUIDString),
+                    UUIDUtil.CODEC.fieldOf("lastPlayer").forGetter(Scene::getLastPlayer),
                     Codec.STRING.fieldOf("name").forGetter(Scene::getName),
                     Codec.STRING.fieldOf("date").forGetter(Scene::getDate),
                     Codec.INT.fieldOf("active_act").forGetter(Scene::getActiveAct),
                     Codec.INT.fieldOf("tick").forGetter(Scene::getTick),
                     Codec.BOOL.fieldOf("active").forGetter(Scene::isActive),
-                    Acts.LIST_CODEC.fieldOf("act").forGetter(Scene::getActs),
+                    Codec.BOOL.fieldOf("loop").forGetter(Scene::isLoop),
+                    Codec.BOOL.fieldOf("restTriggers").forGetter(Scene::isRestTriggers),
+                    ActCodecs.LIST_CODEC.fieldOf("act").forGetter(Scene::getActs),
                     Triggers.LIST_CODEC.fieldOf("trigger").forGetter(Scene::getTriggers)
             ).apply(instance, Scene::new)
     );
@@ -47,7 +54,7 @@ public class Scene {
         this.name = name;
         MinecraftForge.EVENT_BUS.register(this);
     }
-    public Scene(String UUID,String name,String date,int activeAct,int tick,boolean active,List<Act> acts,List<Trigger> triggers){
+    public Scene(String UUID,UUID lastPlayer, String name, String date, int activeAct, int tick, boolean active, boolean loop, boolean restTriggers, List<Act> acts, List<Trigger> triggers){
         this.UUID = java.util.UUID.fromString(UUID);
         this.setName(name);
         this.setDate(date);
@@ -56,55 +63,36 @@ public class Scene {
         this.active = active;
         this.acts = acts;
         this.triggers = triggers;
+        this.loop = loop;
+        this.restTriggers = restTriggers;
+        this.lastPlayer = lastPlayer;
         MinecraftForge.EVENT_BUS.register(this);
     }
     public void start(){
         active = true;
     }
-    public void stop(){
+    public void stop() {
         tick = 0;
         activeAct = 0;
         active = false;
-        activateTriggers();
+        if (this.restTriggers) {
+            deactivateTriggers();
+        }
+        resetNpcsBehavior();
     }
-    //@SubscribeEvent
-    //public void onTick(TickEvent.ClientTickEvent e){
-    //    if(active){
-    //        tick++;
-    //        if(activeAct != 0){
-    //            if(tick >= acts.get(activeAct-1).delay){
-    //                if(activeAct < acts.size()){
-    //                    if(acts.get(activeAct).start()){
-    //                        activeAct++;
-    //                    } else {
-    //                        LOGGER.error("The scene called \""+this.name+"\" is interrupted by action \""+activeAct+"\"");
-    //                        active = false;
-    //                    }
-    //                    tick = 0;
-    //                } else {
-    //                    stop();
-    //                }
-    //            }
-    //        } else {
-    //            if(tick >= 0){
-    //                if(activeAct < acts.size()){
-    //                    if(acts.get(activeAct).start()){
-    //                        activeAct++;
-    //                    } else {
-    //                        LOGGER.error("The scene called \""+this.name+"\" is interrupted by action \""+activeAct+"\"");
-    //                        active = false;
-    //                    }
-    //                    tick = 0;
-    //                } else {
-    //                    tick = 0;
-    //                    activeAct = 0;
-    //                    active = false;
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
-
+    private void resetNpcsBehavior(){
+        List<UUID> uuids = new ArrayList<>();
+        for(Act act : this.acts){
+            if(act instanceof CAct){
+                try {
+                    uuids.add(((CAct) act).entityUUID);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        SimpleNetworkWrapper.sendToServer(new ResetBehaviorDataNPCSC2SPacket(uuids));
+    }
     public void updateDate(){
         String timeStamp = new SimpleDateFormat("yyyy/MM/dd_HH:mm:ss").format(Calendar.getInstance().getTime());
         this.setDate(timeStamp);
@@ -126,13 +114,22 @@ public class Scene {
             throw new RuntimeException(e);
         }
     }
-    public void addAct(Act act){
+    public void addAct(CAct act){
         this.acts.add(act);
     }
     public void removeAct(int line){this.acts.remove(line);}
     public List<Act> getActs(){return this.acts;}
     public void setActs(List<Act> acts){this.acts = acts;}
     public int getActiveAct() {return activeAct;}
+    public int getActiveTriggers(){
+        int j = 0;
+        for (int i = 0; i < this.triggers.size(); i++) {
+            if(this.triggers.get(i).isCanUse()){
+                j++;
+            }
+        }
+        return j;
+    }
     public void activateTriggers(){
         for (int i = 0; i < this.triggers.size(); i++) {
             this.triggers.get(i).activate();
@@ -165,4 +162,25 @@ public class Scene {
     public int getTick() {return tick;}
 
     public boolean isActive() {return active;}
+
+    public void setLoop(boolean loop) {
+        this.loop = loop;
+    }
+    public boolean isLoop(){
+        return this.loop;
+    }
+    public void setRestTriggers(boolean restTriggers) {
+        this.restTriggers = restTriggers;
+    }
+    public boolean isRestTriggers(){
+        return this.restTriggers;
+    }
+
+    public void setLastPlayer(UUID lastPlayer) {
+        this.lastPlayer = lastPlayer;
+    }
+
+    public UUID getLastPlayer() {
+        return lastPlayer;
+    }
 }

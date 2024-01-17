@@ -7,18 +7,23 @@ import com.stit76.stscenes.client.gui.STScreen;
 import com.stit76.stscenes.client.gui.sceneCustomizer.SceneCustomizerScreen;
 import com.stit76.stscenes.common.item.SceneCustomizer;
 import com.stit76.stscenes.common.scenes.scene.Scene;
+import com.stit76.stscenes.common.scenes.scene.Scenes;
+import com.stit76.stscenes.common.scenes.scene.trigger.ClickNpcTrigger;
 import com.stit76.stscenes.common.scenes.scene.trigger.TouchTrigger;
 import com.stit76.stscenes.common.scenes.scene.trigger.Trigger;
 import com.stit76.stscenes.networking.SimpleNetworkWrapper;
+import com.stit76.stscenes.networking.packet.synchronization.SetSceneInScenesDataC2SPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.UUID;
+
 public class TriggerCustomizerScreen extends STScreen {
     public static ResourceLocation background = new ResourceLocation(STScenes.MODID, "textures/gui/act_customizer_gui.png");
-    private Screen lastScreen;
+    private net.minecraft.client.gui.screens.Screen lastScreen;
     private SceneCustomizerScreen screen;
     private Scene scene;
     private int trig_num;
@@ -30,7 +35,7 @@ public class TriggerCustomizerScreen extends STScreen {
     short num;
 
 
-    protected TriggerCustomizerScreen(Component p_96550_,SceneCustomizerScreen screen, Scene scene,int trig_num,SceneCustomizer sceneCustomizer,Screen lastScreen) {
+    protected TriggerCustomizerScreen(Component p_96550_, SceneCustomizerScreen screen, Scene scene, int trig_num, SceneCustomizer sceneCustomizer, net.minecraft.client.gui.screens.Screen lastScreen) {
         super(p_96550_);
         this.screen = screen;
         this.scene = scene;
@@ -46,6 +51,8 @@ public class TriggerCustomizerScreen extends STScreen {
         Trigger trigger = scene.triggers.get(trig_num);
         if(trigger instanceof  TouchTrigger){
             this.minecraft.setScreen(new TouchTriggerScreen(Component.nullToEmpty(trigger.name),screen, (TouchTrigger) trigger,this.sceneCustomizer,this.lastScreen));
+        } if(trigger instanceof  ClickNpcTrigger){
+            this.minecraft.setScreen(new ClickNPCTriggerScreen(Component.nullToEmpty(trigger.name),screen, (ClickNpcTrigger) trigger,this.sceneCustomizer,this.lastScreen));
         } else {
             initChangeTrigger(leftPos + 35,topPos + 65);
         }
@@ -53,33 +60,37 @@ public class TriggerCustomizerScreen extends STScreen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int p_96563_, int p_96564_, float p_96565_) {
+    public void render(GuiGraphics poseStack, int p_96563_, int p_96564_, float p_96565_) {
         renderBackground(poseStack);
         renderBg(poseStack);
         super.render(poseStack, p_96563_, p_96564_, p_96565_);
     }
-    private void renderLine(PoseStack poseStack, String text, int x, int y,boolean isCentred) {
+    private void renderLine(GuiGraphics poseStack, String text, int x, int y,boolean isCentred) {
         if(isCentred){
-            drawCenteredString(poseStack, Minecraft.getInstance().font, text, leftPos + x, topPos + y, 16777215);
+            poseStack.drawCenteredString(Minecraft.getInstance().font, text, leftPos + x, topPos + y, 16777215);
         }else {
-            drawString(poseStack, Minecraft.getInstance().font, text, leftPos + x, topPos + y, 16777215);
+            poseStack.drawString(Minecraft.getInstance().font, text, leftPos + x, topPos + y, 16777215);
         }
     }
-    private void renderBg(PoseStack poseStack) {
-        RenderSystem.setShaderTexture(0, background);
-        blit(poseStack, leftPos, topPos, 0, 0, winSizeX,winSizeY, (int) (256 * 1.5), (int) (256 * 1.5));
+    private void renderBg(GuiGraphics poseStack) {
+        //RenderSystem.setShaderTexture(0, background);
+        poseStack.blit(background, leftPos, topPos, 0, 0, winSizeX,winSizeY, (int) (256 * 1.5), (int) (256 * 1.5));
         renderLine(poseStack,this.title.getString(),7,7,false);
     }
     private void initChangeTrigger(int x ,int y){
-        addRenderableWidget(Button.builder(Component.nullToEmpty("Touch trigger"),(p_93751_) -> {
+        addRenderableWidget(Button.builder(Component.nullToEmpty("TouchTrigger"),(p_93751_) -> {
             this.scene.triggers.set(trig_num,new TouchTrigger());
-            this.minecraft.setScreen(this);
+            this.minecraft.setScreen(this.lastScreen);
         }).pos(x,y).size(100,20).build());
+        addRenderableWidget(Button.builder(Component.nullToEmpty("ClickNPCTrigger"),(p_93751_) -> {
+            this.scene.triggers.set(trig_num,new ClickNpcTrigger("New trigger",true,"","ac30ab68-c978-4091-845e-b0fac56f500f"));
+            this.minecraft.setScreen(this.lastScreen);
+        }).pos(x,y + (25 * 1)).size(100,20).build());
     }
 
     @Override
     public void removed() {
-        super.removed();
+        SimpleNetworkWrapper.sendToServer(new SetSceneInScenesDataC2SPacket(screen.num,screen.scene, Scenes.sceneList));
     }
 
     @Override

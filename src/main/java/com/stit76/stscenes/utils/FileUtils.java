@@ -61,7 +61,7 @@ public class FileUtils {
             Path assetsPath = modPath.resolve("assets");
             Path stscenesPath = assetsPath.resolve("stscenes");
             Path texturesPath = stscenesPath.resolve("textures");
-            Path widePlayerPath = texturesPath.resolve("entity").resolve("player").resolve("wide");
+            Path widePlayerPath = texturesPath.resolve("entity").resolve("player");
             return widePlayerPath;
         }
         return modPath;

@@ -1,7 +1,9 @@
 package com.stit76.stscenes.common.entity;
 
-import com.stit76.stscenes.common.ai.data.STNPCBehaviourData;
-import com.stit76.stscenes.common.ai.goal.FollowSTNPCGoal;
+import com.stit76.stscenes.common.ai.goal.AlwaysLookAtPlayerGoal;
+import com.stit76.stscenes.common.ai.goal.GoToPointGoal;
+import com.stit76.stscenes.common.entity.data.STNPCBehaviourData;
+import com.stit76.stscenes.common.ai.goal.FollowGoal;
 import com.stit76.stscenes.common.entity.data.STNPCVisualData;
 import com.stit76.stscenes.core.init.EntityInit;
 import net.minecraft.nbt.CompoundTag;
@@ -17,11 +19,17 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+
+import java.util.UUID;
 
 public abstract class AbstractSTNPC extends Animal {
     public STNPCVisualData visualData;
     public STNPCBehaviourData behaviourData;
+    private UUID lastInteractPlayer;
+    private boolean interact;
     protected AbstractSTNPC(EntityType<? extends Animal> p_27557_, Level p_27558_) {
         super(p_27557_, p_27558_);
         setStockValues();
@@ -38,14 +46,21 @@ public abstract class AbstractSTNPC extends Animal {
         this.getEntityData().define(this.visualData.NAME,"Steve");
         this.getEntityData().define(this.visualData.SHOW_NAME,true);
         this.getEntityData().define(this.visualData.ALWAYES_SHOW_NAME,true);
-
         this.getEntityData().define(this.visualData.HEAD_MODEL,"none");
         this.getEntityData().define(this.visualData.BODY_MODEL,"none");
-        this.getEntityData().define(this.visualData.ARMS_MODEL,"slim");
+        this.getEntityData().define(this.visualData.ARMS_MODEL,"none");
         this.getEntityData().define(this.visualData.LEGS_MODEL,"none");
         //
         this.getEntityData().define(this.behaviourData.FOLLOW,false);
         this.getEntityData().define(this.behaviourData.FOLLOW_PLAYER,"");
+        this.getEntityData().define(this.behaviourData.GO_TO_POINT,false);
+        this.getEntityData().define(this.behaviourData.POINT_TO_GO,new Vector3f());
+        this.getEntityData().define(this.behaviourData.GO_TO_POINT_SPEED,1.25f);
+
+        this.getEntityData().define(this.behaviourData.LOOK_AT_POINT,false);
+        this.getEntityData().define(this.behaviourData.POINT_LOOK,new Vector3f());
+        this.getEntityData().define(this.behaviourData.IMMORTALITY,false);
+
         super.defineSynchedData();
     }
 
@@ -54,8 +69,10 @@ public abstract class AbstractSTNPC extends Animal {
     }
     @Override
     protected void registerGoals() {
-        //this.goalSelector.addGoal(0,new AlwaysLookAtPlayerGoal(this,Player.class,15,false));
-        this.goalSelector.addGoal(0,new FollowSTNPCGoal(this,1.25f,false));
+        this.goalSelector.addGoal(0,new FollowGoal(this,1.25f,false));
+        this.goalSelector.addGoal(1,new GoToPointGoal(this));
+        this.goalSelector.addGoal(2,new AlwaysLookAtPlayerGoal(this,Player.class,15,false));
+
         super.registerGoals();
     }
 
@@ -81,6 +98,8 @@ public abstract class AbstractSTNPC extends Animal {
 
     @Override
     public InteractionResult mobInteract(Player p_27584_, InteractionHand p_27585_) {
+        this.interact = true;
+        this.lastInteractPlayer = p_27584_.getUUID();
         return super.mobInteract(p_27584_, p_27585_);
     }
 
@@ -93,7 +112,26 @@ public abstract class AbstractSTNPC extends Animal {
             setCustomName(null);
             this.setCustomNameVisible(false);
         }
-
+        if(this.behaviourData.isImmortality()){
+            this.setHealth(this.getMaxHealth());
+        }
         super.tick();
+    }
+    public boolean isInteractPlayer(UUID player) {
+        boolean interactFlag = this.interact;
+        this.interact = false;
+        if(player.equals(this.lastInteractPlayer)){
+            return interactFlag;
+        }
+        return false;
+    }
+    public boolean isInteract() {
+        boolean interactFlag = this.interact;
+        this.interact = false;
+        return interactFlag;
+    }
+
+    public UUID getLastInteractPlayer() {
+        return lastInteractPlayer;
     }
 }

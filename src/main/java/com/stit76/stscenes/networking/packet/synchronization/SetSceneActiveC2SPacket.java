@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public class SetSceneActiveC2SPacket {
@@ -49,7 +50,7 @@ public class SetSceneActiveC2SPacket {
                     scenesData.getScenesList().get(this.index).stop();
                 }
                 scenesData.setDirty();
-                //SimpleNetworkWrapper.sendToAllPlayer(new LoadScenesListToClientC2SPacket(scenesData.getScenesList()));
+                SimpleNetworkWrapper.sendToAllPlayer(new LoadScenesListToClientC2SPacket(scenesData.getScenesList()));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
